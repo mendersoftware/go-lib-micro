@@ -1,0 +1,56 @@
+{
+	"ImportPath": "github.com/mendersoftware/go-lib-micro",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.10.0",
+			"Rev": "4b6ea7319e214d98c938f12692336f7ca9348d6b"
+		},
+		{
+			"ImportPath": "github.com/ant0ine/go-json-rest/rest",
+			"Comment": "v3.3.1-5-gcfd0da1",
+			"Rev": "cfd0da14df1db088980175e1c3c7e77c11b90718"
+		},
+		{
+			"ImportPath": "github.com/ant0ine/go-json-rest/rest/test",
+			"Comment": "v3.3.1-5-gcfd0da1",
+			"Rev": "cfd0da14df1db088980175e1c3c7e77c11b90718"
+		},
+		{
+			"ImportPath": "github.com/ant0ine/go-json-rest/rest/trie",
+			"Comment": "v3.3.1-5-gcfd0da1",
+			"Rev": "cfd0da14df1db088980175e1c3c7e77c11b90718"
+		},
+		{
+			"ImportPath": "github.com/davecgh/go-spew/spew",
+			"Comment": "v1.0.0",
+			"Rev": "6cf5744a041a0022271cefed95ba843f6d87fd51"
+		},
+		{
+			"ImportPath": "github.com/mendersoftware/mendertesting",
+			"Rev": "40e58a0eb46a0a0010b2ef202b166488a0230f70"
+		},
+		{
+			"ImportPath": "github.com/pmezard/go-difflib/difflib",
+			"Rev": "792786c7400a136282c1664665ae0a8db921c6c2"
+		},
+		{
+			"ImportPath": "github.com/satori/go.uuid",
+			"Rev": "f9ab0dce87d815821e221626b772e3475a0d2749"
+		},
+		{
+			"ImportPath": "github.com/stretchr/testify/assert",
+			"Comment": "v1.1.3-16-g6cb3b85",
+			"Rev": "6cb3b85ef5a0efef77caef88363ec4d4b5c0976d"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "b776ec39b3e54652e09028aaaaac9757f4f8211a"
+		}
+	]
+}

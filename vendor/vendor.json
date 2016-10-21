@@ -1,0 +1,67 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "2avCvSn0XonfApKKuTMyiQmk7s0=",
+			"path": "github.com/Sirupsen/logrus",
+			"revision": "3ec0642a7fb6488f65b06f9040adc67e3990296a",
+			"revisionTime": "2016-08-29T20:23:21Z"
+		},
+		{
+			"checksumSHA1": "LNT0T3eBPSaJ3aKhWNh8iWlBvjo=",
+			"path": "github.com/ant0ine/go-json-rest/rest",
+			"revision": "ed84d4020889e7e61d0bb79cc90232d743c0df60",
+			"revisionTime": "2016-10-19T01:40:43Z"
+		},
+		{
+			"checksumSHA1": "pQK3w5+gQZlqj1QXnhFTCB642oM=",
+			"path": "github.com/ant0ine/go-json-rest/rest/test",
+			"revision": "ed84d4020889e7e61d0bb79cc90232d743c0df60",
+			"revisionTime": "2016-10-19T01:40:43Z"
+		},
+		{
+			"checksumSHA1": "sXuwczp4nGdlq20zJoGHmA8IYPg=",
+			"path": "github.com/ant0ine/go-json-rest/rest/trie",
+			"revision": "ed84d4020889e7e61d0bb79cc90232d743c0df60",
+			"revisionTime": "2016-10-19T01:40:43Z"
+		},
+		{
+			"checksumSHA1": "Lf3uUXTkKK5DJ37BxQvxO1Fq+K8=",
+			"path": "github.com/davecgh/go-spew/spew",
+			"revision": "6d212800a42e8ab5c146b8ace3490ee17e5225f9",
+			"revisionTime": "2016-09-07T16:21:46Z"
+		},
+		{
+			"checksumSHA1": "i38FeB/pqmU7xcluq/0LHjIwDY8=",
+			"path": "github.com/mendersoftware/mendertesting",
+			"revision": "8f7685eaafcdf5702c7484892858237090f1240a",
+			"revisionTime": "2016-09-27T12:54:33Z"
+		},
+		{
+			"checksumSHA1": "LuFv4/jlrmFNnDb/5SCSEPAM9vU=",
+			"path": "github.com/pmezard/go-difflib/difflib",
+			"revision": "792786c7400a136282c1664665ae0a8db921c6c2",
+			"revisionTime": "2016-01-10T10:55:54Z"
+		},
+		{
+			"checksumSHA1": "zmC8/3V4ls53DJlNTKDZwPSC/dA=",
+			"path": "github.com/satori/go.uuid",
+			"revision": "b061729afc07e77a8aa4fad0a2fd840958f1942a",
+			"revisionTime": "2016-09-27T10:08:44Z"
+		},
+		{
+			"checksumSHA1": "Q2V7Zs3diLmLfmfbiuLpSxETSuY=",
+			"path": "github.com/stretchr/testify/assert",
+			"revision": "976c720a22c8eb4eb6a0b4348ad85ad12491a506",
+			"revisionTime": "2016-09-25T22:06:09Z"
+		},
+		{
+			"checksumSHA1": "e6tx+mrbPNlzXbr1VErnBPY+vmQ=",
+			"path": "golang.org/x/sys/unix",
+			"revision": "002cbb5f952456d0c50e0d2aff17ea5eca716979",
+			"revisionTime": "2016-10-16T18:36:00Z"
+		}
+	],
+	"rootPath": "github.com/mendersoftware/go-lib-micro"
+}

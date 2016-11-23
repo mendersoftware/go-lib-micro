@@ -18,7 +18,6 @@ import (
 	"github.com/ant0ine/go-json-rest/rest/test"
 	"github.com/stretchr/testify/assert"
 	"mime"
-	"net/http/httptest"
 	"strings"
 	"testing"
 )
@@ -53,8 +52,8 @@ func (b *BaseResponse) CheckStatus(t *testing.T, recorded *test.Recorded) {
 }
 
 //
-func (b *BaseResponse) CheckContentType(t *testing.T, recorded *httptest.ResponseRecorder) {
-	mediaType, params, _ := mime.ParseMediaType(recorded.HeaderMap.Get("Content-Type"))
+func (b *BaseResponse) CheckContentType(t *testing.T, recorded *test.Recorded) {
+	mediaType, params, _ := mime.ParseMediaType(recorded.Recorder.HeaderMap.Get("Content-Type"))
 	charset := params["charset"]
 
 	if mediaType != b.ContentType {

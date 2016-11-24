@@ -93,11 +93,11 @@ type JSONResponse struct {
 }
 
 //
-func NewJSONResponse(status int, contenttype string, headers map[string]string, body interface{}) *JSONResponse {
+func NewJSONResponse(status int, headers map[string]string, body interface{}) *JSONResponse {
 	return &JSONResponse{
 		BaseResponse: BaseResponse{
 			Status:      status,
-			ContentType: contenttype,
+			ContentType: "application/json",
 			Headers:     headers,
 			Body:        body,
 		},

@@ -15,5 +15,5 @@ package migrate
 
 // Migrator applies a list of migrations to bring the db up to target version.
 type Migrator interface {
-	Apply(target *Version, migrations []Migration) error
+	Apply(target Version, migrations []Migration) error
 }

@@ -28,24 +28,24 @@ func TestDummyMigratorApply(t *testing.T) {
 
 	testCases := map[string]struct {
 		InputMigration *MigrationEntry
-		InputVersion   *Version
+		InputVersion   Version
 
-		OutputVersion *Version
+		OutputVersion Version
 	}{
 		"ok - empty state": {
 			InputMigration: nil,
-			InputVersion:   &Version{Major: 1, Minor: 0, Patch: 0},
+			InputVersion:   Version{Major: 1, Minor: 0, Patch: 0},
 
-			OutputVersion: &Version{Major: 1, Minor: 0, Patch: 0},
+			OutputVersion: Version{Major: 1, Minor: 0, Patch: 0},
 		},
 
 		"ok - already has version": {
 			InputMigration: &MigrationEntry{
-				Version:   &Version{Major: 1, Minor: 0, Patch: 0},
+				Version:   Version{Major: 1, Minor: 0, Patch: 0},
 				Timestamp: time.Now(),
 			},
-			InputVersion:  &Version{Major: 1, Minor: 0, Patch: 0},
-			OutputVersion: &Version{Major: 1, Minor: 0, Patch: 0},
+			InputVersion:  Version{Major: 1, Minor: 0, Patch: 0},
+			OutputVersion: Version{Major: 1, Minor: 0, Patch: 0},
 		},
 	}
 

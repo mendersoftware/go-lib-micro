@@ -48,65 +48,65 @@ func TestSimpleMigratorApply(t *testing.T) {
 	}{
 		"ok - empty state": {
 			InputMigrations: nil,
-			InputVersion:    Version{Major: 1, Minor: 0, Patch: 0},
+			InputVersion:    MakeVersion(1, 0, 0),
 
-			OutputVersion: Version{Major: 1, Minor: 0, Patch: 0},
+			OutputVersion: MakeVersion(1, 0, 0),
 		},
 
 		"ok - already has version": {
 			InputMigrations: []MigrationEntry{
 				{
-					Version:   Version{Major: 1, Minor: 0, Patch: 0},
+					Version:   MakeVersion(1, 0, 0),
 					Timestamp: time.Now(),
 				},
 			},
-			InputVersion:  Version{Major: 1, Minor: 0, Patch: 0},
-			OutputVersion: Version{Major: 1, Minor: 0, Patch: 0},
+			InputVersion:  MakeVersion(1, 0, 0),
+			OutputVersion: MakeVersion(1, 0, 0),
 		},
 		"ok - add default target version": {
 			InputMigrations: []MigrationEntry{
 				{
-					Version:   Version{Major: 1, Minor: 0, Patch: 0},
+					Version:   MakeVersion(1, 0, 0),
 					Timestamp: time.Now(),
 				},
 			},
-			InputVersion:  Version{Major: 1, Minor: 1, Patch: 0},
-			OutputVersion: Version{Major: 1, Minor: 1, Patch: 0},
+			InputVersion:  MakeVersion(1, 1, 0),
+			OutputVersion: MakeVersion(1, 1, 0),
 		},
 		"ok - ran migrations": {
 			InputMigrations: []MigrationEntry{
 				{
-					Version:   Version{Major: 1, Minor: 0, Patch: 0},
+					Version:   MakeVersion(1, 0, 0),
 					Timestamp: time.Now(),
 				},
 				{
-					Version:   Version{Major: 1, Minor: 0, Patch: 1},
+					Version:   MakeVersion(1, 0, 1),
 					Timestamp: time.Now(),
 				},
 			},
-			InputVersion:  Version{Major: 1, Minor: 1, Patch: 0},
-			OutputVersion: Version{Major: 1, Minor: 1, Patch: 0},
+			InputVersion:  MakeVersion(1, 1, 0),
+			OutputVersion: MakeVersion(1, 1, 0),
 
 			Migrators: []Migration{
-				makeMigration(Version{1, 0, 1}, Version{1, 0, 0}, nil),
-				makeMigration(Version{1, 1, 0}, Version{1, 0, 1}, nil),
+				makeMigration(MakeVersion(1, 0, 1), MakeVersion(1, 0, 0), nil),
+				makeMigration(MakeVersion(1, 1, 0), MakeVersion(1, 0, 1), nil),
 			},
 		},
 		"err - failed migration": {
 			InputMigrations: []MigrationEntry{
 				{
-					Version:   Version{Major: 1, Minor: 0, Patch: 0},
+					Version:   MakeVersion(1, 0, 0),
 					Timestamp: time.Now(),
 				},
 			},
-			InputVersion: Version{Major: 1, Minor: 1, Patch: 0},
+			InputVersion: MakeVersion(1, 1, 0),
 			// migration 1.0.3 fails, thus the output should remain at 1.0.2
-			OutputVersion: Version{Major: 1, Minor: 0, Patch: 2},
+			OutputVersion: MakeVersion(1, 0, 2),
 
 			Migrators: []Migration{
-				makeMigration(Version{1, 0, 1}, Version{1, 0, 0}, nil),
-				makeMigration(Version{1, 0, 3}, Version{1, 0, 2}, errors.New("failed")),
-				makeMigration(Version{1, 0, 2}, Version{1, 0, 1}, nil),
+				makeMigration(MakeVersion(1, 0, 1), MakeVersion(1, 0, 0), nil),
+				makeMigration(MakeVersion(1, 0, 3), MakeVersion(1, 0, 2), errors.New("failed")),
+				makeMigration(MakeVersion(1, 0, 2), MakeVersion(1, 0, 1), nil),
 			},
 
 			OutputError: errors.New("failed to apply migration from 1.0.2 to 1.0.3: failed"),

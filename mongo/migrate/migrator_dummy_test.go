@@ -14,6 +14,7 @@
 package migrate_test
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -62,7 +63,7 @@ func TestDummyMigratorApply(t *testing.T) {
 
 		//test
 		m := &DummyMigrator{Session: session, Db: "test"}
-		m.Apply(tc.InputVersion, nil)
+		m.Apply(context.Background(), tc.InputVersion, nil)
 
 		//verify
 		var out []MigrationEntry

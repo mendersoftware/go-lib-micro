@@ -39,6 +39,10 @@ func NewVersion(s string) (*Version, error) {
 	return &Version{Major: maj, Minor: min, Patch: patch}, nil
 }
 
+func MakeVersion(maj uint, min uint, patch uint) Version {
+	return Version{Major: maj, Minor: min, Patch: patch}
+}
+
 func (v Version) String() string {
 	return fmt.Sprintf("%d.%d.%d", v.Major, v.Minor, v.Patch)
 }

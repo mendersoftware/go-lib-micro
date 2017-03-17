@@ -15,25 +15,20 @@ package requestid
 
 import (
 	"context"
+	"testing"
 
-	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/stretchr/testify/assert"
 )
 
-// GetReqId helper for retrieving current request Id
-func GetReqId(r *rest.Request) string {
-	reqid := r.Env[RequestIdHeader]
-	if reqid != nil {
-		return reqid.(string)
-	}
-
-	return ""
-}
-
 // FromContext extracts current request Id from context.Context
-func FromContext(ctx context.Context) string {
-	val := ctx.Value(RequestIdHeader)
-	if v, ok := val.(string); ok {
-		return v
-	}
-	return ""
+func TestFromContext(t *testing.T) {
+
+	ctx := context.Background()
+
+	assert.Equal(t, "", FromContext(ctx))
+	assert.Equal(t, "foo",
+		FromContext(context.WithValue(ctx, RequestIdHeader, "foo")))
+	// fallback to default string
+	assert.Equal(t, "",
+		FromContext(context.WithValue(ctx, RequestIdHeader, 123)))
 }

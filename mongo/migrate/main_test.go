@@ -11,11 +11,31 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-package migrate
+package migrate_test
 
-import "context"
+import (
+	"os"
+	"testing"
 
-// Migrator applies a list of migrations to bring the db up to target version.
-type Migrator interface {
-	Apply(ctx context.Context, target Version, migrations []Migration) error
+	ltesting "github.com/mendersoftware/go-lib-micro/log/testing"
+	mtesting "github.com/mendersoftware/go-lib-micro/mongo/testing"
+)
+
+var db mtesting.TestDBRunner
+
+// Overwrites test execution and allows for test database setup
+func TestMain(m *testing.M) {
+	ltesting.MaybeDiscardLogs()
+
+	var status int
+	if !testing.Short() {
+		status = mtesting.WithDB(func(dbtest mtesting.TestDBRunner) int {
+			db = dbtest
+			return m.Run()
+		})
+	} else {
+		status = m.Run()
+	}
+
+	os.Exit(status)
 }

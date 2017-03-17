@@ -11,11 +11,20 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-package migrate
 
-import "context"
+package testing
 
-// Migrator applies a list of migrations to bring the db up to target version.
-type Migrator interface {
-	Apply(ctx context.Context, target Version, migrations []Migration) error
+import (
+	"io/ioutil"
+	"os"
+
+	"github.com/mendersoftware/go-lib-micro/log"
+)
+
+// MaybeDiscardLogs() will setup a default logger to write to ioutil.Discard
+// unless TESTING_LOGS environment variable is non empty.
+func MaybeDiscardLogs() {
+	if os.Getenv("TESTING_LOGS") == "" {
+		log.Log.Out = ioutil.Discard
+	}
 }

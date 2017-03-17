@@ -2,7 +2,7 @@ language: go
 
 # Golang version matrix
 go:
-    - 1.7
+    - 1.8
     - tip
 
 before_install:

@@ -155,3 +155,8 @@ func FromContext(ctx context.Context) *Logger {
 		return New(Ctx{})
 	}
 }
+
+// WithContext adds logger to context `ctx` and returns the resulting context.
+func WithContext(ctx context.Context, log *Logger) context.Context {
+	return context.WithValue(ctx, LoggerContextKey, log)
+}

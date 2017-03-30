@@ -92,6 +92,16 @@ func TestSimpleMigratorApply(t *testing.T) {
 				makeMigration(MakeVersion(1, 1, 0), MakeVersion(1, 0, 1), nil),
 			},
 		},
+		"ok - migration to lower": {
+			InputMigrations: nil,
+			InputVersion:    MakeVersion(0, 1, 0),
+			OutputVersion:   MakeVersion(0, 1, 0),
+
+			Migrators: []Migration{
+				makeMigration(MakeVersion(1, 0, 1), MakeVersion(0, 0, 0), nil),
+				makeMigration(MakeVersion(1, 1, 0), MakeVersion(1, 0, 1), nil),
+			},
+		},
 		"err - failed migration": {
 			InputMigrations: []MigrationEntry{
 				{

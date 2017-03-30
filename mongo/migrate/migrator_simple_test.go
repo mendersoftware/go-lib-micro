@@ -20,9 +20,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/assert"
+
 	. "github.com/mendersoftware/go-lib-micro/mongo/migrate"
 	"github.com/mendersoftware/go-lib-micro/mongo/migrate/mocks"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestSimpleMigratorApply(t *testing.T) {

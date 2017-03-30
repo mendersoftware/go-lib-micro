@@ -14,12 +14,14 @@
 package requestlog
 
 import (
-	"github.com/ant0ine/go-json-rest/rest"
-	"github.com/ant0ine/go-json-rest/rest/test"
-	"github.com/mendersoftware/go-lib-micro/log"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/ant0ine/go-json-rest/rest"
+	"github.com/ant0ine/go-json-rest/rest/test"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/mendersoftware/go-lib-micro/log"
 )
 
 func TestRequestLogMiddleware(t *testing.T) {

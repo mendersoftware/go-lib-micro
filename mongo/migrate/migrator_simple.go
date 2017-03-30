@@ -17,9 +17,10 @@ import (
 	"context"
 	"sort"
 
-	"github.com/mendersoftware/go-lib-micro/log"
 	"github.com/pkg/errors"
 	"gopkg.in/mgo.v2"
+
+	"github.com/mendersoftware/go-lib-micro/log"
 )
 
 // SimpleMigratior applies migrations by comparing `Version` of migrations

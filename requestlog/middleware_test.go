@@ -16,7 +16,9 @@ package requestlog
 import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/ant0ine/go-json-rest/rest/test"
+	"github.com/mendersoftware/go-lib-micro/log"
 	"github.com/stretchr/testify/assert"
+	"net/http"
 	"testing"
 )
 
@@ -29,6 +31,31 @@ func TestRequestLogMiddleware(t *testing.T) {
 		log := r.Env[ReqLog]
 		assert.NotNil(t, log)
 		w.WriteJson(map[string]string{"foo": "bar"})
+	}))
+
+	handler := api.MakeHandler()
+
+	req := test.MakeSimpleRequest("GET", "http://localhost/", nil)
+
+	_ = test.RunRequest(t, handler, req)
+}
+
+func TestRequestLogMiddlewareWithCtx(t *testing.T) {
+	api := rest.NewApi()
+
+	api.Use(&RequestLogMiddleware{
+		LogContext: log.Ctx{"foo": "bar"},
+	})
+
+	api.SetApp(rest.AppSimple(func(w rest.ResponseWriter, r *rest.Request) {
+		le := r.Env[ReqLog]
+
+		assert.NotNil(t, le)
+
+		l := le.(*log.Logger)
+		assert.Contains(t, l.Data, "foo")
+
+		w.WriteHeader(http.StatusNoContent)
 	}))
 
 	handler := api.MakeHandler()

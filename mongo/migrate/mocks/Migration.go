@@ -13,6 +13,7 @@
 //    limitations under the License.
 package mocks
 
+import context "context"
 import migrate "github.com/mendersoftware/go-lib-micro/mongo/migrate"
 import mock "github.com/stretchr/testify/mock"
 
@@ -21,13 +22,13 @@ type Migration struct {
 	mock.Mock
 }
 
-// Up provides a mock function with given fields: from
-func (_m *Migration) Up(from migrate.Version) error {
-	ret := _m.Called(from)
+// Up provides a mock function with given fields: ctx, from
+func (_m *Migration) Up(ctx context.Context, from migrate.Version) error {
+	ret := _m.Called(ctx, from)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(migrate.Version) error); ok {
-		r0 = rf(from)
+	if rf, ok := ret.Get(0).(func(context.Context, migrate.Version) error); ok {
+		r0 = rf(ctx, from)
 	} else {
 		r0 = ret.Error(0)
 	}

@@ -13,10 +13,14 @@
 //    limitations under the License.
 package migrate
 
+import (
+	"context"
+)
+
 // Migration defines an incremental mongo migration step, with a concrete
 // version. Current version of DB is passed as `from` parameter. Once migration
 // completes, DB will be in version Version().
 type Migration interface {
-	Up(from Version) error
+	Up(ctx context.Context, from Version) error
 	Version() Version
 }

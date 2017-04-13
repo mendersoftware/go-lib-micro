@@ -22,13 +22,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func makeClaimsPart(sub string) string {
+func makeClaimsPart(sub, tenant string) string {
 	claim := struct {
-		Subject string `json:"sub"`
+		Subject string `json:"sub,omitempty"`
+		Tenant  string `json:"mender.tenant,omitempty"`
 	}{
 		Subject: sub,
+		Tenant:  tenant,
 	}
-
 	data, _ := json.Marshal(&claim)
 	rawclaim := base64.StdEncoding.EncodeToString(data)
 
@@ -46,7 +47,7 @@ func TestExtractIdentity(t *testing.T) {
 	assert.Error(t, err)
 
 	// should fail, token is malformed, missing header & signature
-	rawclaims := makeClaimsPart("foobar")
+	rawclaims := makeClaimsPart("foobar", "")
 	_, err = ExtractIdentity(rawclaims)
 	assert.Error(t, err)
 
@@ -80,7 +81,7 @@ func TestExtractIdentityFromHeaders(t *testing.T) {
 	assert.Error(t, err)
 
 	// correct cate
-	rawclaims := makeClaimsPart("foobar")
+	rawclaims := makeClaimsPart("foobar", "")
 	h.Set("Authorization", "Bearer foo."+rawclaims+".bar")
 	idata, err := ExtractIdentityFromHeaders(h)
 	assert.NoError(t, err)
@@ -99,7 +100,7 @@ func TestDecodeClaims(t *testing.T) {
 	assert.Error(t, err)
 
 	// should fail, token is malformed, missing header & signature
-	rawclaims := makeClaimsPart("foobar")
+	rawclaims := makeClaimsPart("foobar", "")
 	_, err = decodeClaims(rawclaims)
 	assert.Error(t, err)
 

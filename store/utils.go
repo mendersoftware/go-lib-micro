@@ -23,7 +23,7 @@ import (
 // from context and original database name
 func DbFromContext(ctx context.Context, origDbName string) string {
 	identity := identity.FromContext(ctx)
-	if identity != nil {
+	if identity != nil && identity.Tenant != "" {
 		return origDbName + "-" + identity.Tenant
 	} else {
 		return origDbName

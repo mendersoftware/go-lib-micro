@@ -27,6 +27,15 @@ func TestDbFromContextEmptyContext(t *testing.T) {
 	assert.Equal(t, db, "foo")
 }
 
+func TestDbFromContextNoTenant(t *testing.T) {
+	ctx := context.Background()
+	id := identity.Identity{
+		Subject: "subject",
+	}
+	db := DbFromContext(identity.WithContext(ctx, &id), "foo")
+	assert.Equal(t, db, "foo")
+}
+
 func TestDbFromContext(t *testing.T) {
 	ctx := context.Background()
 	id := identity.Identity{

@@ -31,9 +31,11 @@ func TestSimpleMigratorApply(t *testing.T) {
 		t.Skip("skipping TestDummyMigratorApply in short mode.")
 	}
 
+	ctx := context.Background()
+
 	makeMigration := func(v Version, from Version, err error) Migration {
 		m := &mocks.Migration{}
-		m.On("Up", from).Return(err)
+		m.On("Up", ctx, from).Return(err)
 		m.On("Version").Return(v)
 		return m
 	}

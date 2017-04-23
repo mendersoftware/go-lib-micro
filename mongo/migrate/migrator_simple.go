@@ -79,7 +79,7 @@ func (m *SimpleMigrator) Apply(ctx context.Context, target Version, migrations [
 				last, mv)
 
 			// apply migration
-			if err := migration.Up(last); err != nil {
+			if err := migration.Up(ctx, last); err != nil {
 				l.Errorf("migration from %s to %s failed: %s",
 					last, mv, err)
 

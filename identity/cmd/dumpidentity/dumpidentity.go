@@ -34,5 +34,5 @@ func main() {
 		return
 	}
 
-	fmt.Printf("%+v", idata)
+	fmt.Printf("%+v\n", idata)
 }

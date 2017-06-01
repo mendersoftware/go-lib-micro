@@ -18,7 +18,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mendersoftware/inventory/utils/identity"
+	"github.com/mendersoftware/go-lib-micro/identity"
 )
 
 func main() {

@@ -18,7 +18,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/mendersoftware/inventory/utils/identity"
+	"github.com/mendersoftware/go-lib-micro/identity"
 )
 
 func main() {
@@ -34,5 +34,5 @@ func main() {
 		return
 	}
 
-	fmt.Printf("%v", idata)
+	fmt.Printf("%+v\n", idata)
 }

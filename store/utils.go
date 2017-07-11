@@ -29,3 +29,9 @@ func DbFromContext(ctx context.Context, origDbName string) string {
 		return origDbName
 	}
 }
+
+// DbForTenant generates database name using simply the tenant name and
+//the original db name
+func DbForTenant(tenantId, origDbName string) string {
+	return origDbName + "-" + tenantId
+}

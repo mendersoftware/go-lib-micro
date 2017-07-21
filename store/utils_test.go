@@ -45,3 +45,12 @@ func TestDbFromContext(t *testing.T) {
 	db := DbFromContext(identity.WithContext(ctx, &id), "foo")
 	assert.Equal(t, db, "foo-bar")
 }
+
+func TestIsTenantDb(t *testing.T) {
+	matcher := IsTenantDb("servicedb")
+
+	assert.True(t, matcher("servicedb-tenant1"))
+	assert.False(t, matcher("servicedb"))
+	assert.False(t, matcher("servicedbtenant1"))
+
+}

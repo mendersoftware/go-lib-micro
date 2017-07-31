@@ -16,6 +16,7 @@ package migrate
 import (
 	"time"
 
+	"github.com/mendersoftware/go-lib-micro/store"
 	"github.com/pkg/errors"
 	"gopkg.in/mgo.v2"
 )
@@ -63,4 +64,23 @@ func UpdateMigrationInfo(version Version, sess *mgo.Session, db string) error {
 	}
 
 	return nil
+}
+
+func GetTenantDbs(sess *mgo.Session, matcher store.TenantDbMatchFunc) ([]string, error) {
+	s := sess.Copy()
+	defer s.Close()
+
+	dbs, err := s.DatabaseNames()
+	if err != nil {
+		return nil, err
+	}
+
+	tenantDbs := []string{}
+	for _, db := range dbs {
+		if matcher(db) {
+			tenantDbs = append(tenantDbs, db)
+		}
+	}
+
+	return tenantDbs, err
 }

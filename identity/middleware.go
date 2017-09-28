@@ -57,6 +57,11 @@ func (mw *IdentityMiddleware) MiddlewareFunc(h rest.HandlerFunc) rest.HandlerFun
 				}
 
 				logCtx[key] = identity.Subject
+
+				if identity.Tenant != "" {
+					logCtx["tenant_id"] = identity.Tenant
+				}
+
 				l = l.F(logCtx)
 				ctx = log.WithContext(ctx, l)
 			}

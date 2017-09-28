@@ -125,10 +125,9 @@ func TestIdentityMiddleware(t *testing.T) {
 
 func TestIdentityMiddlewareDevice(t *testing.T) {
 	testCases := []struct {
-		identity Identity
-		mw       *IdentityMiddleware
-		logField string
-		fieldVal string
+		identity  Identity
+		mw        *IdentityMiddleware
+		logFields map[string]interface{}
 	}{
 		{
 			identity: Identity{
@@ -139,8 +138,10 @@ func TestIdentityMiddlewareDevice(t *testing.T) {
 			mw: &IdentityMiddleware{
 				UpdateLogger: true,
 			},
-			logField: "device_id",
-			fieldVal: "device-1",
+			logFields: map[string]interface{}{
+				"device_id": "device-1",
+				"tenant_id": "bar",
+			},
 		},
 		{
 			identity: Identity{
@@ -151,8 +152,10 @@ func TestIdentityMiddlewareDevice(t *testing.T) {
 			mw: &IdentityMiddleware{
 				UpdateLogger: true,
 			},
-			logField: "user_id",
-			fieldVal: "user-1",
+			logFields: map[string]interface{}{
+				"user_id":   "user-1",
+				"tenant_id": "bar",
+			},
 		},
 		{
 			identity: Identity{
@@ -162,8 +165,23 @@ func TestIdentityMiddlewareDevice(t *testing.T) {
 			mw: &IdentityMiddleware{
 				UpdateLogger: true,
 			},
-			logField: "sub",
-			fieldVal: "not-a-user-not-a-device",
+			logFields: map[string]interface{}{
+				"sub":       "not-a-user-not-a-device",
+				"tenant_id": "bar",
+			},
+		},
+		{
+			identity: Identity{
+				Subject:  "123-dobby-has-no-master",
+				IsDevice: true,
+			},
+			mw: &IdentityMiddleware{
+				UpdateLogger: true,
+			},
+			logFields: map[string]interface{}{
+				"device_id": "123-dobby-has-no-master",
+				"tenant_id": nil,
+			},
 		},
 	}
 
@@ -181,8 +199,8 @@ func TestIdentityMiddlewareDevice(t *testing.T) {
 
 				l := log.FromContext(r.Context())
 				l.Infof("foobar")
-				if assert.Contains(t, l.Data, tc.logField) {
-					assert.Equal(t, tc.fieldVal, l.Data[tc.logField])
+				for f, v := range tc.logFields {
+					assert.Equal(t, v, l.Data[f])
 				}
 				w.WriteJson(map[string]string{"foo": "bar"})
 			}))

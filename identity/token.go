@@ -22,10 +22,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const (
-	IdentityContextKey = "github.com/mendersoftware/go-lib-micro/identity.Identity"
-)
-
 // Token field names
 const (
 	subjectClaim = "sub"

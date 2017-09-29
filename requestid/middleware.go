@@ -35,7 +35,7 @@ func (mw *RequestIdMiddleware) MiddlewareFunc(h rest.HandlerFunc) rest.HandlerFu
 			reqId = uuid.NewV4().String()
 		}
 
-		r.Env[RequestIdHeader] = reqId
+		r = SetReqId(r, reqId)
 
 		// enrich log context
 		logger := requestlog.GetRequestLogger(r)

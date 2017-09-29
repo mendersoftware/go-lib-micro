@@ -27,12 +27,14 @@ const (
 
 // GetReqId helper for retrieving current request Id
 func GetReqId(r *rest.Request) string {
-	reqid := r.Env[RequestIdHeader]
-	if reqid != nil {
-		return reqid.(string)
-	}
+	return FromContext(r.Context())
+}
 
-	return ""
+// SetReqId is a helper for setting request ID in request context
+func SetReqId(r *rest.Request, reqid string) *rest.Request {
+	ctx := WithContext(r.Context(), reqid)
+	r.Request = r.Request.WithContext(ctx)
+	return r
 }
 
 // FromContext extracts current request Id from context.Context

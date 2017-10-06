@@ -51,3 +51,11 @@ func TenantFromDbName(dbName string, baseDb string) string {
 	}
 	return noBase
 }
+
+// DbNameForTenant composes tenant's db name.
+func DbNameForTenant(tenantId string, baseDb string) string {
+	if tenantId == "" {
+		return baseDb
+	}
+	return baseDb + "-" + tenantId
+}

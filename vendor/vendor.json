@@ -33,6 +33,42 @@
 			"revisionTime": "2016-09-07T16:21:46Z"
 		},
 		{
+			"checksumSHA1": "Ixz+tDG4HsFokZH06wx3KNG5NZ4=",
+			"path": "github.com/globalsign/mgo",
+			"revision": "896bbb89d21253a28cd5a7f8b81fe091410cb94d",
+			"revisionTime": "2018-01-15T17:41:36Z"
+		},
+		{
+			"checksumSHA1": "paW8iOz8L5sH96wFnqgnStLi0YI=",
+			"path": "github.com/globalsign/mgo/bson",
+			"revision": "896bbb89d21253a28cd5a7f8b81fe091410cb94d",
+			"revisionTime": "2018-01-15T17:41:36Z"
+		},
+		{
+			"checksumSHA1": "SlWCKDxEghx9GwzjJ6y/qBZWNNs=",
+			"path": "github.com/globalsign/mgo/dbtest",
+			"revision": "896bbb89d21253a28cd5a7f8b81fe091410cb94d",
+			"revisionTime": "2018-01-15T17:41:36Z"
+		},
+		{
+			"checksumSHA1": "//bXQG4HblBwxHJDIW/PklXAxu0=",
+			"path": "github.com/globalsign/mgo/internal/json",
+			"revision": "896bbb89d21253a28cd5a7f8b81fe091410cb94d",
+			"revisionTime": "2018-01-15T17:41:36Z"
+		},
+		{
+			"checksumSHA1": "zSNjAU41khuKovmSSkhVqXf5q4A=",
+			"path": "github.com/globalsign/mgo/internal/sasl",
+			"revision": "896bbb89d21253a28cd5a7f8b81fe091410cb94d",
+			"revisionTime": "2018-01-15T17:41:36Z"
+		},
+		{
+			"checksumSHA1": "YogZ7HaSnE0pxdiP48GdI1+CXeI=",
+			"path": "github.com/globalsign/mgo/internal/scram",
+			"revision": "896bbb89d21253a28cd5a7f8b81fe091410cb94d",
+			"revisionTime": "2018-01-15T17:41:36Z"
+		},
+		{
 			"checksumSHA1": "FLmqfKOP+8V5+LJm1568MwJf4gk=",
 			"path": "github.com/mendersoftware/mendertesting",
 			"revision": "731be57371e8c3dde8fff60dd0d7d8171ad7f472",
@@ -63,10 +99,22 @@
 			"revisionTime": "2016-09-25T22:06:09Z"
 		},
 		{
+			"checksumSHA1": "GtamqiJoL7PGHsN454AoffBFMa8=",
+			"path": "golang.org/x/net/context",
+			"revision": "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1",
+			"revisionTime": "2018-02-02T11:17:09Z"
+		},
+		{
 			"checksumSHA1": "e6tx+mrbPNlzXbr1VErnBPY+vmQ=",
 			"path": "golang.org/x/sys/unix",
 			"revision": "002cbb5f952456d0c50e0d2aff17ea5eca716979",
 			"revisionTime": "2016-10-16T18:36:00Z"
+		},
+		{
+			"checksumSHA1": "t95/FNK2nGCx3e6IARbO7OrcCuY=",
+			"path": "gopkg.in/tomb.v2",
+			"revision": "d5d1b5820637886def9eef33e03a27a9f166942c",
+			"revisionTime": "2016-12-08T15:16:19Z"
 		}
 	],
 	"rootPath": "github.com/mendersoftware/go-lib-micro"

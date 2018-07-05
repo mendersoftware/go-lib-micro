@@ -84,6 +84,13 @@ func RestErrWithPanicMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, 
 // log full error with given log level
 func restErrWithLogMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger,
 	e error, code int, msg string, logLevel logrus.Level) {
+
+	if msg != "" {
+		e = errors.Wrap(e, msg)
+	} else {
+		msg = e.Error()
+	}
+
 	w.WriteHeader(code)
 	err := w.WriteJson(map[string]string{
 		rest.ErrorFieldName: msg,
@@ -91,9 +98,6 @@ func restErrWithLogMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger,
 	})
 	if err != nil {
 		panic(err)
-	}
-	if msg != "" {
-		e = errors.Wrap(e, msg)
 	}
 	switch logLevel {
 	case logrus.DebugLevel:

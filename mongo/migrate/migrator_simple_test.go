@@ -182,16 +182,16 @@ func TestSimpleMigratorApply(t *testing.T) {
 
 			//setup
 			db.Wipe()
-			session := db.Session()
+			client := db.Client()
 			for i := range tc.InputMigrations {
-				_, err := session.Database("test").
+				_, err := client.Database("test").
 					Collection(DbMigrationsColl).
 					InsertOne(db.CTX(), tc.InputMigrations[i])
 				assert.NoError(t, err)
 			}
 
 			//test
-			m := &SimpleMigrator{Session: session, Db: "test", Automigrate: tc.Automigrate}
+			m := &SimpleMigrator{Client: client, Db: "test", Automigrate: tc.Automigrate}
 			err := m.Apply(context.Background(), tc.InputVersion, tc.Migrators)
 			if tc.OutputError != nil {
 				assert.Error(t, err)
@@ -202,7 +202,7 @@ func TestSimpleMigratorApply(t *testing.T) {
 
 			//verify
 			var out []MigrationEntry
-			cursor, _ := session.Database("test").
+			cursor, _ := client.Database("test").
 				Collection(DbMigrationsColl).
 				Find(db.CTX(), bson.M{})
 

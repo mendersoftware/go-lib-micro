@@ -85,21 +85,21 @@ func TestDummyMigratorApply(t *testing.T) {
 
 		//setup
 		db.Wipe()
-		session := db.Session()
+		client := db.Client()
 		for _, m := range tc.InputMigrations {
-			_, err := session.Database("test").
+			_, err := client.Database("test").
 				Collection(DbMigrationsColl).
 				InsertOne(db.CTX(), m)
 			assert.NoError(t, err)
 		}
 
 		//test
-		m := &DummyMigrator{Session: session, Db: "test", Automigrate: tc.Automigrate}
+		m := &DummyMigrator{Client: client, Db: "test", Automigrate: tc.Automigrate}
 		m.Apply(context.Background(), tc.InputVersion, nil)
 
 		//verify
 		var out []MigrationEntry
-		cursor, _ := session.Database("test").
+		cursor, _ := client.Database("test").
 			Collection(DbMigrationsColl).
 			Find(db.CTX(), bson.M{})
 

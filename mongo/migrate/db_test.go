@@ -52,17 +52,17 @@ func TestGetTenantDbs(t *testing.T) {
 		tc := testCases[name]
 		t.Run(name, func(t *testing.T) {
 			db.Wipe()
-			session := db.Session()
+			client := db.Client()
 
 			// dummy insert on test dbs to create them
 			for _, dbname := range tc.dbs {
-				_, err := session.Database(dbname).
+				_, err := client.Database(dbname).
 					Collection("foo").
 					InsertOne(db.CTX(), bson.M{"foo": "bar"})
 				assert.NoError(t, err)
 			}
 
-			res, err := GetTenantDbs(db.CTX(), session, store.IsTenantDb(baseDb))
+			res, err := GetTenantDbs(db.CTX(), client, store.IsTenantDb(baseDb))
 			assert.NoError(t, err)
 			assert.Equal(t, tc.dbs, res)
 		})

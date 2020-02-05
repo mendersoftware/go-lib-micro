@@ -1,5 +1,5 @@
 # Apache 2.0 license.
-c1452ea0feb52f2e6e6aaba33ae0d558626ba8c69ad7cb6866f2d4fbb7a711dc  LICENSE
+d5a55eaa82e2c109b8bcadfa66139497511b80d665668264f155b5a45086b086  LICENSE
 409777def58db7e220011d266bb963259b5d45fc490e58a0d97acad2b591609a  vendor/github.com/ant0ine/go-json-rest/LICENSE
 1b93a317849ee09d3d7e4f1d20c2b78ddb230b4becb12d7c224c927b9d470251  vendor/github.com/davecgh/go-spew/LICENSE
 2eb550be6801c1ea434feba53bf6d12e7c71c90253e0a9de4a4f46cf88b56477  vendor/github.com/pmezard/go-difflib/LICENSE

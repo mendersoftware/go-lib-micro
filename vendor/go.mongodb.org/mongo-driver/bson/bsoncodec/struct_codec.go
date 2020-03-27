@@ -127,12 +127,17 @@ func (sc *StructCodec) EncodeValue(r EncodeContext, vw bsonrw.ValueWriter, val r
 
 		encoder := desc.encoder
 
-		iszero := sc.isZero
-		if iz, ok := encoder.(CodecZeroer); ok {
-			iszero = iz.IsTypeZero
+		var isZero bool
+		rvInterface := rv.Interface()
+		if cz, ok := encoder.(CodecZeroer); ok {
+			isZero = cz.IsTypeZero(rvInterface)
+		} else if rv.Kind() == reflect.Interface {
+			// sc.isZero will not treat an interface rv as an interface, so we need to check for the zero interface separately.
+			isZero = rv.IsNil()
+		} else {
+			isZero = sc.isZero(rvInterface)
 		}
-
-		if desc.omitEmpty && iszero(rv.Interface()) {
+		if desc.omitEmpty && isZero {
 			continue
 		}
 
@@ -169,10 +174,17 @@ func (sc *StructCodec) DecodeValue(r DecodeContext, vr bsonrw.ValueReader, val r
 		return ValueDecoderError{Name: "StructCodec.DecodeValue", Kinds: []reflect.Kind{reflect.Struct}, Received: val}
 	}
 
-	switch vr.Type() {
+	switch vrType := vr.Type(); vrType {
 	case bsontype.Type(0), bsontype.EmbeddedDocument:
+	case bsontype.Null:
+		if err := vr.ReadNull(); err != nil {
+			return err
+		}
+
+		val.Set(reflect.Zero(val.Type()))
+		return nil
 	default:
-		return fmt.Errorf("cannot decode %v into a %s", vr.Type(), val.Type())
+		return fmt.Errorf("cannot decode %v into a %s", vrType, val.Type())
 	}
 
 	sd, err := sc.describeStruct(r.Registry, val.Type())
@@ -235,6 +247,7 @@ func (sc *StructCodec) DecodeValue(r DecodeContext, vr bsonrw.ValueReader, val r
 			}
 
 			elem := reflect.New(inlineMap.Type().Elem()).Elem()
+			r.Ancestor = inlineMap.Type()
 			err = decoder.DecodeValue(r, vr, elem)
 			if err != nil {
 				return err

@@ -35,11 +35,10 @@ func TestUUID(t *testing.T) {
 	assert.Equal(t, uSHA1, uSHA1Eq)
 
 	// Test FromString
-	uFromString := FromString(uSHA1.String())
+	uFromString, _ := FromString(uSHA1.String())
 	assert.Equal(t, uSHA1, uFromString)
-	// Check that a SHA1 is created for non-UUID strings
-	uFromString = FromString("foobar")
-	assert.Equal(t, uSHA1, uFromString)
+	_, err := FromString("foobar")
+	assert.Error(t, err)
 
 	// Test NewRandom
 	uRandom := NewRandom()

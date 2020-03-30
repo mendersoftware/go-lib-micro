@@ -76,15 +76,11 @@ func NewSHA1(id string) UUID {
 	return UUID{UUID: ret}
 }
 
-// FromString is an extended wrapper for uuid.FromString - It first attempts
-// to parse a stringified uuid. If the string is not a hexencoded string a new
-// version 5 (SHA1) uuid in the ObjectID namespace is created.
-func FromString(id string) UUID {
+// FromString tries to parse a hex-encoded UUID string, and returns an error
+// if the string is not a valid UUID.
+func FromString(id string) (UUID, error) {
 	ret, err := uuid.FromString(id)
-	if err != nil {
-		return NewSHA1(id)
-	}
 	return UUID{
 		UUID: ret,
-	}
+	}, err
 }

@@ -29,6 +29,9 @@ func DocumentFromStruct(
 	sct interface{},
 	appendElements ...bson.E,
 ) (doc bson.D) {
+	if sct == nil {
+		return nil
+	}
 	s := reflect.ValueOf(sct)
 	defer func() {
 		if r := recover(); r != nil {

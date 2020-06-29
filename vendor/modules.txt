@@ -1,4 +1,4 @@
-# github.com/ant0ine/go-json-rest v3.3.2+incompatible
+# github.com/ant0ine/go-json-rest v3.3.3-0.20170913041208-ebb33769ae01+incompatible
 ## explicit
 github.com/ant0ine/go-json-rest/rest
 github.com/ant0ine/go-json-rest/rest/test
@@ -35,7 +35,7 @@ github.com/magiconair/properties
 # github.com/mendersoftware/inventory v0.0.0-20200522065057-a25956b1ec7b
 ## explicit
 github.com/mendersoftware/inventory/utils
-# github.com/mendersoftware/mendertesting v0.0.0-20200519115418-fd4090fcab1a
+# github.com/mendersoftware/mendertesting v0.0.0-20200528113222-083aca144cb7
 ## explicit
 github.com/mendersoftware/mendertesting
 # github.com/mitchellh/mapstructure v1.1.2

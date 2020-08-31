@@ -22,89 +22,42 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Token field names
-const (
-	subjectClaim = "sub"
-	tenantClaim  = "mender.tenant"
-	deviceClaim  = "mender.device"
-	userClaim    = "mender.user"
-	planClaim    = "mender.plan"
-)
-
 type Identity struct {
-	Subject  string
-	Tenant   string
-	IsUser   bool
-	IsDevice bool
-	Plan     string
-}
-
-type rawClaims map[string]interface{}
-
-func decodeClaims(token string) (rawClaims, error) {
-	parts := strings.Split(token, ".")
-	if len(parts) != 3 {
-		return nil, errors.New("incorrect token format")
-	}
-
-	b64claims := parts[1]
-	// add padding as needed
-	if pad := len(b64claims) % 4; pad != 0 {
-		b64claims += strings.Repeat("=", 4-pad)
-	}
-
-	rawclaims, err := base64.StdEncoding.DecodeString(b64claims)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode raw claims %v",
-			b64claims)
-	}
-
-	var claims rawClaims
-	err = json.Unmarshal(rawclaims, &claims)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to decode claims")
-	}
-
-	return claims, nil
+	Subject  string `json:"sub" valid:"required"`
+	Tenant   string `json:"mender.tenant,omitempty"`
+	IsUser   bool   `json:"mender.user,omitempty"`
+	IsDevice bool   `json:"mender.device,omitempty"`
+	Plan     string `json:"mender.plan,omitempty"`
 }
 
 // Generate identity information from given JWT by extracting subject and tenant claims.
 // Note that this function does not perform any form of token signature
 // verification.
-func ExtractIdentity(token string) (Identity, error) {
-	claims, err := decodeClaims(token)
+func ExtractIdentity(token string) (id Identity, err error) {
+	var (
+		b64Claims string
+		claims    []byte
+		jwt       []string
+	)
+	jwt = strings.Split(token, ".")
+	if len(jwt) != 3 {
+		return id, errors.New("identity: incorrect token format")
+	}
+	b64Claims = jwt[1]
+	if pad := len(b64Claims) % 4; pad != 0 {
+		b64Claims += strings.Repeat("=", 4-pad)
+	}
+	claims, err = base64.StdEncoding.DecodeString(b64Claims)
 	if err != nil {
-		return Identity{}, err
+		return id, errors.Wrap(err,
+			"identity: failed to decode base64 JWT claims")
 	}
-
-	sub, err := getStringClaim(claims, subjectClaim)
+	err = json.Unmarshal(claims, &id)
 	if err != nil {
-		return Identity{}, err
+		return id, errors.Wrap(err,
+			"identity: failed to decode JSON JWT claims")
 	}
-	if sub == "" {
-		return Identity{}, errors.Errorf("subject claim not found")
-	}
-
-	tenant, err := getStringClaim(claims, tenantClaim)
-	if err != nil {
-		return Identity{}, err
-	}
-
-	plan, err := getStringClaim(claims, planClaim)
-	if err != nil {
-		return Identity{}, err
-	}
-
-	identity := Identity{Subject: sub, Tenant: tenant, Plan: plan}
-	if isUser, err := getBoolClaim(claims, userClaim); err == nil {
-		identity.IsUser = isUser
-	}
-
-	if isDevice, err := getBoolClaim(claims, deviceClaim); err == nil {
-		identity.IsDevice = isDevice
-	}
-
-	return identity, nil
+	return id, id.Validate()
 }
 
 // Extract identity information from HTTP Authorization header. The header is
@@ -123,31 +76,9 @@ func ExtractIdentityFromHeaders(headers http.Header) (Identity, error) {
 	return ExtractIdentity(auth[1])
 }
 
-// extracts claim from JWT claims and converts it to a string
-func getStringClaim(claims rawClaims, claim string) (string, error) {
-	raw, ok := claims[claim]
-	if !ok {
-		return "", nil
+func (id Identity) Validate() error {
+	if id.Subject == "" {
+		return errors.New("identity: claim \"sub\" is required")
 	}
-
-	claimString, ok := raw.(string)
-	if !ok {
-		return "", errors.Errorf("invalid %s format", claim)
-	}
-	return claimString, nil
-}
-
-// extracts claim from JWT claims and converts it to a boolean
-func getBoolClaim(claims rawClaims, name string) (bool, error) {
-	rawval, ok := claims[name]
-	if !ok {
-		return false, errors.Errorf("field %s not found", name)
-	}
-
-	val, ok := rawval.(bool)
-	if !ok {
-		return false, errors.Errorf("field %v has incorrect value %v", name, rawval)
-	}
-
-	return val, nil
+	return nil
 }

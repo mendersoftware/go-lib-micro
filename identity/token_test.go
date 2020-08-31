@@ -17,6 +17,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -46,8 +47,7 @@ func makeClaimsFull(sub, tenant, plan string, device, user bool) string {
 		claim.User = boolPtr(true)
 	}
 	data, _ := json.Marshal(&claim)
-	rawclaim := base64.StdEncoding.EncodeToString(data)
-
+	rawclaim := strings.TrimRight(base64.StdEncoding.EncodeToString(data), "=")
 	return rawclaim
 }
 
@@ -96,10 +96,13 @@ func TestExtractIdentity(t *testing.T) {
 	assert.Equal(t, Identity{Subject: "123", IsUser: true}, idata)
 
 	enc = base64.StdEncoding.EncodeToString([]byte(`{"sub": "123", "mender.user": {"garbage": 2}}`))
-	idata, err = ExtractIdentity("foo." + enc + ".bar")
-	assert.NoError(t, err)
-	assert.Equal(t, Identity{Subject: "123"}, idata)
+	_, err = ExtractIdentity("foo." + enc + ".bar")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to decode JSON JWT claims")
 
+	_, err = ExtractIdentity("foo.barrr.baz")
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "failed to decode base64 JWT claims")
 }
 
 func TestExtractIdentityFromHeaders(t *testing.T) {
@@ -121,39 +124,4 @@ func TestExtractIdentityFromHeaders(t *testing.T) {
 	idata, err := ExtractIdentityFromHeaders(h)
 	assert.NoError(t, err)
 	assert.Equal(t, Identity{Subject: "foobar"}, idata)
-}
-
-func TestDecodeClaims(t *testing.T) {
-	// malformed tokens
-	_, err := decodeClaims("foo")
-	assert.Error(t, err)
-
-	_, err = decodeClaims("foo.bar")
-	assert.Error(t, err)
-
-	_, err = decodeClaims("foo.bar.baz")
-	assert.Error(t, err)
-
-	// should fail, token is malformed, missing header & signature
-	rawclaims := makeClaimsPart("foobar", "", "")
-	_, err = decodeClaims(rawclaims)
-	assert.Error(t, err)
-
-	// malformed base64 claims part
-	_, err = decodeClaims("foo.00" + rawclaims + ".bar")
-	assert.Error(t, err)
-
-	// malformed json
-	enc := base64.StdEncoding.EncodeToString([]byte(`"sub": 1}`))
-	_, err = ExtractIdentity("foo." + enc + ".bar")
-
-	assert.Error(t, err)
-	// correct token
-	claims, err := decodeClaims("foo." + rawclaims + ".bar")
-	assert.NoError(t, err)
-	assert.NotEmpty(t, claims)
-
-	sub, ok := claims[subjectClaim]
-	assert.True(t, ok)
-	assert.Equal(t, "foobar", sub)
 }

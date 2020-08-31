@@ -63,17 +63,21 @@ func ExtractIdentity(token string) (id Identity, err error) {
 // Extract identity information from HTTP Authorization header. The header is
 // assumed to contain data in format: `Bearer <token>`
 func ExtractIdentityFromHeaders(headers http.Header) (Identity, error) {
-	auth := strings.Split(headers.Get("Authorization"), " ")
+	auth := headers.Get("Authorization")
+	if auth == "" {
+		return Identity{}, errors.New("Authorization header not present")
+	}
+	auths := strings.Split(auth, " ")
 
-	if len(auth) != 2 {
+	if len(auths) != 2 {
 		return Identity{}, errors.Errorf("malformed authorization data")
 	}
 
-	if auth[0] != "Bearer" {
-		return Identity{}, errors.Errorf("unknown authorization method %v", auth[0])
+	if auths[0] != "Bearer" {
+		return Identity{}, errors.Errorf("unknown authorization method %s", auths[0])
 	}
 
-	return ExtractIdentity(auth[1])
+	return ExtractIdentity(auths[1])
 }
 
 func (id Identity) Validate() error {

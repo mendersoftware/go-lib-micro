@@ -15,6 +15,8 @@
 package rest_utils
 
 import (
+	"net/http"
+	"strings"
 	"testing"
 
 	"github.com/ant0ine/go-json-rest/rest"
@@ -49,6 +51,61 @@ func TestParseQueryParmStr(t *testing.T) {
 			value, err := ParseQueryParmStr(req, "username", false, nil)
 			assert.Equal(t, tc.username, value)
 			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestMakePageLinkHdrs(t *testing.T) {
+	testCases := []struct {
+		Name string
+
+		HasNext       bool
+		Page, PerPage uint64
+		Path          string
+
+		Expected []string
+	}{{
+		Name: "First page",
+
+		HasNext: true,
+		Path:    "/root",
+		Page:    1,
+		PerPage: 20,
+
+		Expected: []string{
+			`</root?page=2&per_page=20>; rel="next"`,
+			`</root?page=1&per_page=20>; rel="first"`,
+		},
+	}, {
+		Name: "Second page",
+
+		HasNext: true,
+		Path:    "/root/child",
+		Page:    3,
+		PerPage: 10,
+
+		Expected: []string{
+			`</root/child?page=1&per_page=10>; rel="first"`,
+			`</root/child?page=2&per_page=10>; rel="prev"`,
+			`</root/child?page=4&per_page=10>; rel="next"`,
+		},
+	}}
+
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			req, _ := http.NewRequest(
+				"GET",
+				"http://localhost/"+
+					strings.TrimPrefix(tc.Path, "/"),
+				nil,
+			)
+			res := MakePageLinkHdrs(
+				&rest.Request{Request: req},
+				tc.Page, tc.PerPage, tc.HasNext,
+			)
+			for _, link := range tc.Expected {
+				assert.Contains(t, res, link)
+			}
 		})
 	}
 }

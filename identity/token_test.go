@@ -109,30 +109,31 @@ func TestExtractIdentityFromHeaders(t *testing.T) {
 	r := &http.Request{
 		Header: http.Header{},
 	}
-	_, err := ExtractIdentityFromHeaders(r)
+	_, err := ExtractJWTFromHeader(r)
 	assert.Error(t, err)
 
 	r.Header.Set("Authorization", "Basic foobar")
-	_, err = ExtractIdentityFromHeaders(r)
+	_, err = ExtractJWTFromHeader(r)
 	assert.Error(t, err)
 
 	r.Header.Set("Authorization", "Bearer")
-	_, err = ExtractIdentityFromHeaders(r)
+	_, err = ExtractJWTFromHeader(r)
 	assert.Error(t, err)
 
 	// correct cate
 	rawclaims := makeClaimsPart("foobar", "", "")
-	r.Header.Set("Authorization", "Bearer foo."+rawclaims+".bar")
-	idata, err := ExtractIdentityFromHeaders(r)
+	actualJWT := "foo." + rawclaims + ".bar"
+	r.Header.Set("Authorization", "Bearer "+actualJWT)
+	jwt, err := ExtractJWTFromHeader(r)
 	assert.NoError(t, err)
-	assert.Equal(t, Identity{Subject: "foobar"}, idata)
+	assert.Equal(t, actualJWT, jwt)
 
 	r.Header.Del("Authorization")
 	r.AddCookie(&http.Cookie{
 		Name:  "JWT",
 		Value: "foo." + rawclaims + ".bar",
 	})
-	idata, err = ExtractIdentityFromHeaders(r)
+	jwt, err = ExtractJWTFromHeader(r)
 	assert.NoError(t, err)
-	assert.Equal(t, Identity{Subject: "foobar"}, idata)
+	assert.Equal(t, actualJWT, jwt)
 }

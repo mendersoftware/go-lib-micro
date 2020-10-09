@@ -62,22 +62,30 @@ func ExtractIdentity(token string) (id Identity, err error) {
 
 // Extract identity information from HTTP Authorization header. The header is
 // assumed to contain data in format: `Bearer <token>`
-func ExtractIdentityFromHeaders(headers http.Header) (Identity, error) {
-	auth := headers.Get("Authorization")
+func ExtractIdentityFromHeaders(r *http.Request) (Identity, error) {
+	var jwt string
+	auth := r.Header.Get("Authorization")
 	if auth == "" {
-		return Identity{}, errors.New("Authorization header not present")
-	}
-	auths := strings.Split(auth, " ")
+		// Try "JWT" cookie
+		jwtCookie, err := r.Cookie("JWT")
+		if err != nil {
+			return Identity{}, errors.New("Authorization not present in header")
+		}
+		jwt = jwtCookie.Value
+	} else {
+		auths := strings.Split(auth, " ")
 
-	if len(auths) != 2 {
-		return Identity{}, errors.Errorf("malformed authorization data")
+		if len(auths) != 2 {
+			return Identity{}, errors.Errorf("malformed authorization data")
+		}
+
+		if auths[0] != "Bearer" {
+			return Identity{}, errors.Errorf("unknown authorization method %s", auths[0])
+		}
+		jwt = auths[1]
 	}
 
-	if auths[0] != "Bearer" {
-		return Identity{}, errors.Errorf("unknown authorization method %s", auths[0])
-	}
-
-	return ExtractIdentity(auths[1])
+	return ExtractIdentity(jwt)
 }
 
 func (id Identity) Validate() error {

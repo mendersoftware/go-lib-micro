@@ -30,6 +30,31 @@ type Identity struct {
 	Plan     string `json:"mender.plan,omitempty"`
 }
 
+// ExtractJWTFromHeader inspect the Authorization header for a Bearer token and
+// if not present looks for a "JWT" cookie.
+func ExtractJWTFromHeader(r *http.Request) (jwt string, err error) {
+	auth := r.Header.Get("Authorization")
+	if auth == "" {
+		jwtCookie, err := r.Cookie("JWT")
+		if err != nil {
+			return "", errors.New("Authorization not present in header")
+		}
+		jwt = jwtCookie.Value
+	} else {
+		auths := strings.Split(auth, " ")
+
+		if len(auths) != 2 {
+			return "", errors.Errorf("malformed Authorization header")
+		}
+
+		if !strings.EqualFold(auths[0], "Bearer") {
+			return "", errors.Errorf("unknown Authorization method %s", auths[0])
+		}
+		jwt = auths[1]
+	}
+	return jwt, nil
+}
+
 // Generate identity information from given JWT by extracting subject and tenant claims.
 // Note that this function does not perform any form of token signature
 // verification.
@@ -58,26 +83,6 @@ func ExtractIdentity(token string) (id Identity, err error) {
 			"identity: failed to decode JSON JWT claims")
 	}
 	return id, id.Validate()
-}
-
-// Extract identity information from HTTP Authorization header. The header is
-// assumed to contain data in format: `Bearer <token>`
-func ExtractIdentityFromHeaders(headers http.Header) (Identity, error) {
-	auth := headers.Get("Authorization")
-	if auth == "" {
-		return Identity{}, errors.New("Authorization header not present")
-	}
-	auths := strings.Split(auth, " ")
-
-	if len(auths) != 2 {
-		return Identity{}, errors.Errorf("malformed authorization data")
-	}
-
-	if auths[0] != "Bearer" {
-		return Identity{}, errors.Errorf("unknown authorization method %s", auths[0])
-	}
-
-	return ExtractIdentity(auths[1])
 }
 
 func (id Identity) Validate() error {

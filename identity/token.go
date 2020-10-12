@@ -60,19 +60,14 @@ func ExtractJWTFromHeader(r *http.Request) (jwt string, err error) {
 // verification.
 func ExtractIdentity(token string) (id Identity, err error) {
 	var (
-		b64Claims string
-		claims    []byte
-		jwt       []string
+		claims []byte
+		jwt    []string
 	)
 	jwt = strings.Split(token, ".")
 	if len(jwt) != 3 {
 		return id, errors.New("identity: incorrect token format")
 	}
-	b64Claims = jwt[1]
-	if pad := len(b64Claims) % 4; pad != 0 {
-		b64Claims += strings.Repeat("=", 4-pad)
-	}
-	claims, err = base64.StdEncoding.DecodeString(b64Claims)
+	claims, err = base64.RawURLEncoding.DecodeString(jwt[1])
 	if err != nil {
 		return id, errors.Wrap(err,
 			"identity: failed to decode base64 JWT claims")

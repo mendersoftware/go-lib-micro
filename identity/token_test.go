@@ -17,7 +17,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"net/http"
-	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -47,7 +46,7 @@ func makeClaimsFull(sub, tenant, plan string, device, user bool) string {
 		claim.User = boolPtr(true)
 	}
 	data, _ := json.Marshal(&claim)
-	rawclaim := strings.TrimRight(base64.StdEncoding.EncodeToString(data), "=")
+	rawclaim := base64.RawURLEncoding.EncodeToString(data)
 	return rawclaim
 }
 
@@ -76,26 +75,26 @@ func TestExtractIdentity(t *testing.T) {
 	assert.Equal(t, Identity{Subject: "foobar"}, idata)
 
 	// missing subject
-	enc := base64.StdEncoding.EncodeToString([]byte(`{"iss": "Mender"}`))
+	enc := base64.RawURLEncoding.EncodeToString([]byte(`{"iss": "Mender"}`))
 	_, err = ExtractIdentity("foo." + enc + ".bar")
 	assert.Error(t, err)
 
 	// bad subject
-	enc = base64.StdEncoding.EncodeToString([]byte(`{"sub": 1}`))
+	enc = base64.RawURLEncoding.EncodeToString([]byte(`{"sub": 1}`))
 	_, err = ExtractIdentity("foo." + enc + ".bar")
 	assert.Error(t, err)
 
-	enc = base64.StdEncoding.EncodeToString([]byte(`{"sub": "123", "mender.device": true}`))
+	enc = base64.RawURLEncoding.EncodeToString([]byte(`{"sub": "123", "mender.device": true}`))
 	idata, err = ExtractIdentity("foo." + enc + ".bar")
 	assert.NoError(t, err)
 	assert.Equal(t, Identity{Subject: "123", IsDevice: true}, idata)
 
-	enc = base64.StdEncoding.EncodeToString([]byte(`{"sub": "123", "mender.user": true}`))
+	enc = base64.RawURLEncoding.EncodeToString([]byte(`{"sub": "123", "mender.user": true}`))
 	idata, err = ExtractIdentity("foo." + enc + ".bar")
 	assert.NoError(t, err)
 	assert.Equal(t, Identity{Subject: "123", IsUser: true}, idata)
 
-	enc = base64.StdEncoding.EncodeToString([]byte(`{"sub": "123", "mender.user": {"garbage": 2}}`))
+	enc = base64.RawURLEncoding.EncodeToString([]byte(`{"sub": "123", "mender.user": {"garbage": 2}}`))
 	_, err = ExtractIdentity("foo." + enc + ".bar")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to decode JSON JWT claims")

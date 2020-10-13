@@ -50,9 +50,6 @@ github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/magiconair/properties v1.8.1
 github.com/magiconair/properties
-# github.com/mendersoftware/inventory v0.0.0-20201009104503-14a9b714f012
-## explicit
-github.com/mendersoftware/inventory/utils
 # github.com/mendersoftware/mendertesting v0.0.1
 ## explicit
 github.com/mendersoftware/mendertesting
@@ -148,7 +145,7 @@ gopkg.in/ini.v1
 # gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 ## explicit
 gopkg.in/tomb.v2
-# gopkg.in/yaml.v2 v2.3.0
+# gopkg.in/yaml.v2 v2.2.8
 gopkg.in/yaml.v2
-# gopkg.in/yaml.v3 v3.0.0-20200615113413-eeeca48fe776
+# gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
 gopkg.in/yaml.v3

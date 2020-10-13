@@ -4,7 +4,6 @@ go 1.14
 
 require (
 	github.com/ant0ine/go-json-rest v3.3.3-0.20170913041208-ebb33769ae01+incompatible
-	github.com/mendersoftware/inventory v0.0.0-20201009104503-14a9b714f012
 	github.com/mendersoftware/mendertesting v0.0.1
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0

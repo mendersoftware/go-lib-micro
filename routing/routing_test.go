@@ -1,4 +1,4 @@
-// Copyright 2017 Northern.tech AS
+// Copyright 2020 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import (
 
 	"github.com/ant0ine/go-json-rest/rest"
 	rtest "github.com/ant0ine/go-json-rest/rest/test"
-	"github.com/mendersoftware/inventory/utils"
 )
 
 func TestSupportsMethod(t *testing.T) {
@@ -165,7 +164,14 @@ func TestAutogenOptionHeaders(t *testing.T) {
 	}
 
 	for _, sh := range suppmeth {
-		if utils.ContainsString(sh, allowmeth) == false {
+		var found bool
+		for _, s := range allowmeth {
+			if sh == s {
+				found = true
+				break
+			}
+		}
+		if !found {
 			t.Errorf("supported method %s not in allowed: %+v",
 				sh, allowmeth)
 		}

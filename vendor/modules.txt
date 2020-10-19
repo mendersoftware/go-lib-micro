@@ -50,7 +50,7 @@ github.com/klauspost/compress/zstd
 github.com/klauspost/compress/zstd/internal/xxhash
 # github.com/magiconair/properties v1.8.1
 github.com/magiconair/properties
-# github.com/mendersoftware/mendertesting v0.0.1
+# github.com/mendersoftware/mendertesting v0.0.2-0.20201017134033-a52f7a79af4f
 ## explicit
 github.com/mendersoftware/mendertesting
 # github.com/mitchellh/mapstructure v1.1.2

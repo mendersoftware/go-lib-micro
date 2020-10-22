@@ -1,4 +1,4 @@
-// Copyright 2017 Northern.tech AS
+// Copyright 2020 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -11,6 +11,7 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
+
 package requestid
 
 import (
@@ -18,7 +19,7 @@ import (
 
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/ant0ine/go-json-rest/rest/test"
-	"github.com/satori/go.uuid"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -52,7 +53,7 @@ func TestRequestIdMiddlewareNoReqID(t *testing.T) {
 
 	api.SetApp(rest.AppSimple(func(w rest.ResponseWriter, r *rest.Request) {
 		reqid := FromContext(r.Context())
-		_, err := uuid.FromString(reqid)
+		_, err := uuid.Parse(reqid)
 		assert.NoError(t, err)
 		w.WriteJson(map[string]string{"foo": "bar"})
 	}))
@@ -64,6 +65,6 @@ func TestRequestIdMiddlewareNoReqID(t *testing.T) {
 	recorded.CodeIs(200)
 	recorded.ContentTypeIsJson()
 	outReqIdStr := recorded.Recorder.HeaderMap.Get(RequestIdHeader)
-	_, err := uuid.FromString(outReqIdStr)
+	_, err := uuid.Parse(outReqIdStr)
 	assert.NoError(t, err)
 }

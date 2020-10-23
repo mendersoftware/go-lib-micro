@@ -44,17 +44,21 @@ func defaultLogHook(params LogParameters) {
 	l := log.FromContext(c.Request.Context())
 	code := c.Writer.Status()
 	// Add status and response time to log context
+	size := c.Writer.Size()
+	if size < 0 {
+		size = 0
+	}
 	logCtx := log.Ctx{
-		"method": c.Request.Method,
-		"path":   params.Path,
+		"byteswritten": size,
+		"clientip":     c.ClientIP(),
+		"method":       c.Request.Method,
+		"path":         params.Path,
 		"responsetime": fmt.Sprintf("%dus",
 			latency.Round(time.Microsecond).Microseconds()),
-		"status":     code,
-		"ts":         params.StartTime.Format(time.RFC3339),
-		"user-agent": c.Request.UserAgent(),
-	}
-	if sz := c.Writer.Size(); sz >= 0 {
-		logCtx["byteswritten"] = sz
+		"status":    code,
+		"ts":        params.StartTime.Format(time.RFC3339),
+		"type":      c.Request.Proto,
+		"useragent": c.Request.UserAgent(),
 	}
 	l = l.F(logCtx)
 

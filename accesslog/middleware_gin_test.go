@@ -46,7 +46,7 @@ func TestMiddleware(t *testing.T) {
 			"status=204",
 			`path="/test?foo=bar"`,
 			"method=GET",
-			"user-agent=tester",
+			"useragent=tester",
 			"responsetime=",
 			"ts=",
 		},
@@ -82,8 +82,7 @@ func TestMiddleware(t *testing.T) {
 		Fields: []string{
 			"status=500",
 			`path="/test?foo=bar"`,
-			"user-agent=tester",
-			"user-agent=tester",
+			"useragent=tester",
 			"method=GET",
 			"responsetime=",
 			"byteswritten=16",
@@ -102,7 +101,7 @@ func TestMiddleware(t *testing.T) {
 			`path="/test?foo=bar"`,
 			"method=GET",
 			"responsetime=",
-			"user-agent=tester",
+			"useragent=tester",
 			"byteswritten=5",
 			"ts=",
 			fmt.Sprintf(

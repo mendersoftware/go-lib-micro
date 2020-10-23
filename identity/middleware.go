@@ -27,7 +27,7 @@ import (
 
 const (
 	// IdentityPathsRe decides which requests
-	defaultPathRegex = "^/api/management/v[0-9.]{1,6}/.+"
+	defaultPathRegex = "^/api/management/v[0-9.]+/.+"
 )
 
 type MiddlewareOptions struct {

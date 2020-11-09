@@ -12,6 +12,6 @@ require (
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/viper v1.7.1
 	github.com/stretchr/testify v1.6.1
-	go.mongodb.org/mongo-driver v1.4.2
+	go.mongodb.org/mongo-driver v1.4.3
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )

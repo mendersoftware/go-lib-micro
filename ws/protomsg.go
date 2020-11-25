@@ -28,14 +28,32 @@ const (
 // to which protocol the message should be routed.
 type ProtoHdr struct {
 	// Proto defines which protocol this message belongs
-	// to (required).
+	// to (required). E.g.:
+	// * MenderShell for remote terminal
+	// * MenderConfiguration for configuration of devices
+	// * MenderMonitoring for the stats and monitoring
 	Proto ProtoType `msgpack:"proto"`
+
 	// MsgType is an optional content type header describing
-	// the protocol specific content type of the message.
+	// the protocol specific content type of the message. E.g.: for MenderShell:
+	// * CommandData for the stdout / stderr coming from the terminal and keystrokes from the UI
+	// * StartSession for the session start
+	// * StopSession for stopping of the session
 	MsgType string `msgpack:"typ,omitempty"`
+
+	// Status is the indicator of whether the response contains error or other
+	// conditions (required).
+	// E.g.: for the remote terminal case a StartSession MsgType maye result in
+	//       an error due to mas session limit reached.
+	// * Normal message carries a data from successful processing
+	// * Error the given message returned error
+	// * ProtocolError higher level protocol error
+	Status int `msgpack:"state"`
+
 	// SessionID is used to identify one ProtoMsg stream for
 	// multiplexing multiple ProtoMsg sessions over the same connection.
 	SessionID string `msgpack:"sid,omitempty"`
+
 	// Properties provide a map of optional prototype specific
 	// properties (such as http headers or other meta-data).
 	Properties map[string]interface{} `msgpack:"props,omitempty"`

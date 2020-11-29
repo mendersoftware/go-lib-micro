@@ -14,6 +14,8 @@
 
 package ws
 
+import "encoding"
+
 // ProtoType defines how the ProtoMsg should be interpreted.
 type ProtoType uint16
 
@@ -52,4 +54,10 @@ type ProtoMsg struct {
 	// can be arbitrary and must be decoded according to the protocol
 	// defined in the header.
 	Body []byte `msgpack:"body,omitempty"`
+}
+
+func (m *ProtoMsg) Bind(b encoding.BinaryMarshaler) error {
+	data, err := b.MarshalBinary()
+	m.Body = data
+	return err
 }

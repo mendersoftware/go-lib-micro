@@ -11,14 +11,19 @@
 //    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
-package plan
 
-func IsHigherOrEqual(plan string, thenPlan string) bool {
-	if _, ok := PlanWeights[plan]; !ok {
-		return false
-	}
-	if _, ok := PlanWeights[thenPlan]; !ok {
-		return false
-	}
-	return PlanWeights[plan] >= PlanWeights[thenPlan]
-}
+package shell
+
+type MenderShellMessageStatus int
+
+const (
+	MessageTypeShellCommand = "shell"
+	MessageTypeSpawnShell   = "new"
+	MessageTypeStopShell    = "stop"
+)
+
+const (
+	NormalMessage MenderShellMessageStatus = iota + 1
+	ErrorMessage
+	ControlMessage
+)

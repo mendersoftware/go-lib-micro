@@ -20,6 +20,7 @@ const (
 	MessageTypeShellCommand = "shell"
 	MessageTypeSpawnShell   = "new"
 	MessageTypeStopShell    = "stop"
+	MessageTypeResizeShell  = "resize"
 )
 
 const (

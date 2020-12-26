@@ -24,6 +24,8 @@ const (
 	ProtoInvalid ProtoType = iota
 	// ProtoTypeShell is used for communicating remote terminal session data.
 	ProtoTypeShell
+	// ProtoTypeFileTransfer is used for file transfer from/to the device.
+	ProtoTypeFileTransfer
 )
 
 // ProtoHdr provides the info about what the ProtoMsg contains and

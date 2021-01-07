@@ -32,7 +32,9 @@ package log
 
 import (
 	"context"
+	"io"
 	"path"
+	"regexp"
 	"runtime"
 	"strings"
 
@@ -50,6 +52,43 @@ const (
 	loggerContextKey loggerContextKeyType = 0
 )
 
+// Same as github.com/asaskevich/govalidator.Email, but
+// "position independent" in the string.
+const (
+	emailRegexStr = "(?P<start>(^|[^A-Za-z0-9]))(((([a-zA-Z]|\\d|[!#\\$%&'\\*" +
+		"\\+\\-\\/=\\?\\^_`{\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x" +
+		"{FDF0}-\\x{FFEF}])+(\\.([a-zA-Z]|\\d|[!#\\$%&'\\*\\+\\-\\/=\\?\\^_`{" +
+		"\\|}~]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])+" +
+		")*)|((\\x22)((((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x09)+)?(([\\x01-" +
+		"\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f]|\\x21|[\\x23-\\x5b]|[\\x5d-\\x7e]|[" +
+		"\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(\\([\\x" +
+		"01-\\x09\\x0b\\x0c\\x0d-\\x7f]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDC" +
+		"F}\\x{FDF0}-\\x{FFEF}]))))*(((\\x20|\\x09)*(\\x0d\\x0a))?(\\x20|\\x0" +
+		"9)+)?(\\x22)))@((([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDC" +
+		"F}\\x{FDF0}-\\x{FFEF}])|(([a-zA-Z]|\\d|[\\x{00A0}-\\x{D7FF}\\x{F900}" +
+		"-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])([a-zA-Z]|\\d|-|\\.|_|~|[\\x{00A0}-\\" +
+		"x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])*([a-zA-Z]|\\d|[\\x{0" +
+		"0A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])))\\.)+(([a-zA" +
+		"-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])|(([" +
+		"a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}-\\x{FFEF}])" +
+		"([a-zA-Z]|\\d|-|_|~|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FDF0}" +
+		"-\\x{FFEF}])*([a-zA-Z]|[\\x{00A0}-\\x{D7FF}\\x{F900}-\\x{FDCF}\\x{FD" +
+		"F0}-\\x{FFEF}])))\\.?(?P<end>([^A-Za-z0-9]|$))"
+	emailRegexReplace = "${start}*EMAIL REDACTED*${end}"
+)
+
+var emailRegex = regexp.MustCompile(emailRegexStr)
+
+type redactedWriter struct {
+	regex   *regexp.Regexp
+	replace []byte
+	w       io.Writer
+}
+
+func (w redactedWriter) Write(b []byte) (int, error) {
+	return w.w.Write(w.regex.ReplaceAll(b, w.replace))
+}
+
 // ContextLogger interface for components which support
 // logging with context, via setting a logger to an exisiting one,
 // thereby inheriting its context.
@@ -64,6 +103,11 @@ func init() {
 	}
 	Log.Level = logrus.InfoLevel
 	Log.Hooks.Add(ContextHook{})
+	Log.Out = redactedWriter{
+		w:       Log.Out,
+		regex:   emailRegex,
+		replace: []byte(emailRegexReplace),
+	}
 }
 
 // Setup allows to override the global logger setup.
@@ -94,12 +138,24 @@ func NewEmpty() *Logger {
 // NewFromLogger returns a new Logger derived from a given logrus.Logger,
 // instead of the global one.
 func NewFromLogger(log *logrus.Logger, ctx Ctx) *Logger {
+	if _, ok := log.Out.(redactedWriter); !ok {
+		log.Out = redactedWriter{
+			w:       log.Out,
+			regex:   emailRegex,
+			replace: []byte(emailRegexReplace),
+		}
+	}
 	return &Logger{log.WithFields(logrus.Fields(ctx))}
 }
 
 // NewFromLogger returns a new Logger derived from a given logrus.Logger,
 // instead of the global one.
 func NewFromEntry(log *logrus.Entry, ctx Ctx) *Logger {
+	log.Logger.Out = redactedWriter{
+		w:       log.Logger.Out,
+		regex:   emailRegex,
+		replace: []byte(emailRegexReplace),
+	}
 	return &Logger{log.WithFields(logrus.Fields(ctx))}
 }
 
@@ -113,8 +169,7 @@ func (l *Logger) Level() logrus.Level {
 	return l.Entry.Logger.Level
 }
 
-type ContextHook struct {
-}
+type ContextHook struct{}
 
 func (hook ContextHook) Levels() []logrus.Level {
 	return logrus.AllLevels

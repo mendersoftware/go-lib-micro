@@ -14,8 +14,8 @@
 package log
 
 import (
+	"bytes"
 	"context"
-	"io/ioutil"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -28,14 +28,19 @@ func TestNew(t *testing.T) {
 }
 
 func TestNewFromLogger(t *testing.T) {
+	buf := bytes.NewBuffer(nil)
 	baselog := logrus.New()
-	baselog.Level = logrus.PanicLevel
-	baselog.Out = ioutil.Discard
+	baselog.Level = logrus.DebugLevel
+	baselog.Out = buf
 
 	l := NewFromLogger(baselog, Ctx{})
 	assert.NotNil(t, l)
-	assert.Equal(t, l.Logger.Level, logrus.PanicLevel)
-	assert.Equal(t, l.Logger.Out, ioutil.Discard)
+	assert.Equal(t, l.Logger.Level, logrus.DebugLevel)
+	if assert.IsType(t, redactedWriter{}, l.Logger.Out) {
+		assert.Equal(t, l.Logger.Out.(redactedWriter).w, buf)
+	}
+	l.Infof("email: sample@email.com, another@email.com and maybe a third+email@example.com")
+	assert.Contains(t, buf.String(), "msg=\"email: *EMAIL REDACTED*, *EMAIL REDACTED* and maybe a *EMAIL REDACTED*\"")
 }
 
 func TestSetup(t *testing.T) {

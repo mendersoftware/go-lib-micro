@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -28,9 +28,6 @@ type LogParameters struct {
 	// gin.Context.
 	Context *gin.Context
 
-	// Path holds the path as set before the request handler is executed.
-	Path string
-
 	// StartTime is the time when the request was received by the
 	// middleware, which can be used to compute latency.
 	StartTime time.Time
@@ -52,7 +49,8 @@ func defaultLogHook(params LogParameters) {
 		"byteswritten": size,
 		"clientip":     c.ClientIP(),
 		"method":       c.Request.Method,
-		"path":         params.Path,
+		"path":         c.Request.URL.Path,
+		"qs":           c.Request.URL.RawQuery,
 		"responsetime": fmt.Sprintf("%dus",
 			latency.Round(time.Microsecond).Microseconds()),
 		"status":    code,
@@ -132,11 +130,7 @@ func Middleware(opts ...*MiddlewareOptions) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		params := LogParameters{
 			Context:   c,
-			Path:      c.Request.URL.Path,
 			StartTime: time.Now(),
-		}
-		if c.Request.URL.RawQuery != "" {
-			params.Path = params.Path + "?" + c.Request.URL.RawQuery
 		}
 
 		if opt.BeforeHook != nil {

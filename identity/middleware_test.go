@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -193,7 +193,7 @@ func TestGinMiddleware(t *testing.T) {
 			assert.Empty(t, logger.Entry.Data)
 		},
 	}, {
-		Name: "error, token not present",
+		Name: "error, token not present (w/logger)",
 		Request: func() *http.Request {
 			req, _ := http.NewRequest("GET",
 				"http://localhost/api/management/v1/test",
@@ -213,6 +213,77 @@ func TestGinMiddleware(t *testing.T) {
 			assert.EqualError(t,
 				apiErr,
 				"Authorization not present in header",
+			)
+		},
+	}, {
+		Name: "error, token malformed (w/logger)",
+		Request: func() *http.Request {
+			req, _ := http.NewRequest("GET",
+				"http://localhost/api/management/v1/test",
+				nil,
+			)
+			req.Header.Set("Authorization", "Bearer bruh?==")
+			return req
+		}(),
+		Options: NewMiddlewareOptions().
+			SetPathRegex("^/api/management/v1/test$"),
+
+		Validator: func(t *testing.T,
+			w *httptest.ResponseRecorder, req *http.Request,
+		) {
+			assert.Equal(t, 401, w.Code)
+			var apiErr urest.Error
+			_ = json.Unmarshal(w.Body.Bytes(), &apiErr)
+			assert.EqualError(t,
+				apiErr,
+				"identity: incorrect token format",
+			)
+		},
+	}, {
+		Name: "error, token not present (base middleware)",
+		Request: func() *http.Request {
+			req, _ := http.NewRequest("GET",
+				"http://localhost/api/management/v1/test",
+				nil,
+			)
+			return req
+		}(),
+		Options: NewMiddlewareOptions().
+			SetUpdateLogger(false),
+
+		Validator: func(t *testing.T,
+			w *httptest.ResponseRecorder, req *http.Request,
+		) {
+			assert.Equal(t, 401, w.Code)
+			var apiErr urest.Error
+			_ = json.Unmarshal(w.Body.Bytes(), &apiErr)
+			assert.EqualError(t,
+				apiErr,
+				"Authorization not present in header",
+			)
+		},
+	}, {
+		Name: "error, token malformed (base middleware)",
+		Request: func() *http.Request {
+			req, _ := http.NewRequest("GET",
+				"http://localhost/api/management/v1/test",
+				nil,
+			)
+			req.Header.Set("Authorization", "Bearer bruh?==")
+			return req
+		}(),
+		Options: NewMiddlewareOptions().
+			SetUpdateLogger(false),
+
+		Validator: func(t *testing.T,
+			w *httptest.ResponseRecorder, req *http.Request,
+		) {
+			assert.Equal(t, 401, w.Code)
+			var apiErr urest.Error
+			_ = json.Unmarshal(w.Body.Bytes(), &apiErr)
+			assert.EqualError(t,
+				apiErr,
+				"identity: incorrect token format",
 			)
 		},
 	}}

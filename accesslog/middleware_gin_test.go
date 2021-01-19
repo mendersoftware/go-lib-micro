@@ -33,9 +33,9 @@ func TestMiddleware(t *testing.T) {
 		Name string
 
 		HandlerFunc gin.HandlerFunc
-		Options     *MiddlewareOptions
 
-		Fields []string
+		Fields       []string
+		ExpectedBody string
 	}{{
 		Name: "ok",
 
@@ -90,7 +90,7 @@ func TestMiddleware(t *testing.T) {
 			"responsetime=",
 			"byteswritten=16",
 			"ts=",
-			`error="#01: internal error 1\n#02: internal error 2\n"`,
+			`error="#01: internal error 1\\n#02: internal error 2\\n"`,
 		},
 	}, {
 		Name: "ok, unexplained error",
@@ -114,14 +114,26 @@ func TestMiddleware(t *testing.T) {
 			),
 		},
 	}, {
-		Name: "override hooks",
+		Name: "error, panic in handler",
 
-		Options: NewMiddlewareOptions().
-			SetAfterHook(func(p LogParameters) {}).
-			SetBeforeHook(func(p LogParameters) {}),
 		HandlerFunc: func(c *gin.Context) {
-			c.Status(http.StatusInternalServerError)
+			panic("!!!!!")
 		},
+
+		Fields: []string{
+			"status=500",
+			`path=/test`,
+			`qs="foo=bar"`,
+			"method=GET",
+			"responsetime=",
+			"useragent=tester",
+			"ts=",
+			// First three entries in the trace should match this:
+			`trace=".+middleware_gin_test\.go\(TestMiddleware\.func[0-9]*\):[0-9]+\\n` +
+				`.+\(\(\*Context\).Next\):[0-9]+\\n` +
+				`.+middleware_gin\.go\(Middleware\.func[0-9]*\):[0-9]+\\n.+"`,
+		},
+		ExpectedBody: `{"error": "internal error"}`,
 	}}
 
 	gin.SetMode(gin.ReleaseMode)
@@ -142,7 +154,7 @@ func TestMiddleware(t *testing.T) {
 				ctx = log.WithContext(ctx, logger)
 				c.Request = c.Request.WithContext(ctx)
 			})
-			router.Use(Middleware(tc.Options))
+			router.Use(Middleware())
 			router.GET("/test", tc.HandlerFunc)
 
 			w := httptest.NewRecorder()
@@ -157,10 +169,15 @@ func TestMiddleware(t *testing.T) {
 
 			logEntry := logBuf.String()
 			for _, field := range tc.Fields {
-				assert.Contains(t, logEntry, field)
+				assert.Regexp(t, field, logEntry)
 			}
 			if tc.Fields == nil {
 				assert.Empty(t, logEntry)
+			}
+			if tc.ExpectedBody != "" {
+				if assert.NotNil(t, w.Body) {
+					assert.JSONEq(t, tc.ExpectedBody, w.Body.String())
+				}
 			}
 		})
 	}

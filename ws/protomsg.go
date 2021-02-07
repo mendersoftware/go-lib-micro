@@ -28,6 +28,8 @@ const (
 	ProtoTypeFileTransfer
 	// ProtoTypePortForward is used for port-forwarding connections to the device.
 	ProtoTypePortForward
+	// ProtoTypeMenderClient is used for communication with the Mender client.
+	ProtoTypeMenderClient
 )
 
 // ProtoHdr provides the info about what the ProtoMsg contains and

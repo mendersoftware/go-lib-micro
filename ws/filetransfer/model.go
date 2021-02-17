@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -15,22 +15,23 @@
 package filetransfer
 
 const (
-	// MessageTypeContinue is returned on upload requests when the client
-	// may start uploading file_chunks.
-	MessageTypeContinue = "continue"
 	// MessageTypeGet requests a file from the device.
 	MessageTypeGet = "get_file"
 	// MessageTypePut requests a file upload to the device. The body MUST
 	// contain a FileInfo object.
 	MessageTypePut = "put_file"
+	// MessageTypeContinue is returned on upload requests when the client
+	// may start uploading file_chunks.
+	MessageTypeContinue = "put_file/continue"
 	// MessageTypeStat requests file information from the device. The body
 	// MUST contain a StatFile object.
-	MessageTypeStat = "file_info_req"
-	// MessageTypeStatResponse is a response to a MessageTypeStat request.
+	MessageTypeStat = "stat"
+	// MessageTypeFileInfo is a response to a MessageTypeStat request.
 	// The body MUST contain a FileInfo object.
-	MessageTypeStatResponse = "file_info_res"
+	MessageTypeFileInfo = "file_info"
 	// MessageTypeChunk is the message type for streaming file chunks. The
-	// body MUST contain a FileChunk object.
+	// body contains a binary slice of the file, and optional "offset" property
+	// can be passed in the header.
 	MessageTypeChunk = "file_chunk"
 	// MessageTypeError is returned on internal or protocol errors. The
 	// body MUST contain an Error object.
@@ -73,12 +74,4 @@ type FileInfo struct {
 	GID uint32 `msgpack:"gid,omitempty" json:"gid,omitempty"`
 	// Mode contains the file mode and permission bits.
 	Mode uint32 `msgpack:"mode,omitempty" json:"mode,omitempty"`
-}
-
-// File chunk carry the contents of the file
-type FileChunk struct {
-	// The current offset in the file
-	Offset string `msgpack:"offset,omitempty" json:"offset,omitempty"`
-	// Array of bytes of file contents
-	Data []byte `msgpack:"data,omitempty" json:"data,omitempty"`
 }

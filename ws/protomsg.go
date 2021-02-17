@@ -30,6 +30,23 @@ const (
 	ProtoTypePortForward
 	// ProtoTypeMenderClient is used for communication with the Mender client.
 	ProtoTypeMenderClient
+
+	// ProtoTypeControl is a reserved proto type for session control messages.
+	ProtoTypeControl ProtoType = 0xFFFF
+)
+
+const (
+	// MessageTypes for session control messages (ProtoTypeControl),
+	// none of the messages contain a body.
+
+	// MessageTypePing sends a ping. After receiving a ping, the receiver
+	// MUST respond with a pong message or the session will time out.
+	MessageTypePing = "ping"
+	// MessageTypePong is sent in response to a MessageTypePing.
+	MessageTypePong = "pong"
+	// MessageTypeClose is sent when the session MUST close. All
+	// communication on the session stop after receiving this message.
+	MessageTypeClose = "close"
 )
 
 // ProtoHdr provides the info about what the ProtoMsg contains and

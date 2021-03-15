@@ -32,6 +32,7 @@ fe81a9072afbfe0fe32b0bc99a852d697d14fbbca99b0b1878ac8f5dcbdd6ee6  vendor/github.
 08eab1118c80885fa1fa6a6dd7303f65a379fcb3733e063d20d1bbc2c76e6fa1  vendor/github.com/mattn/go-isatty/LICENSE
 03458b6d5828e1be1127ca2adf122572eb574fc47b56190c3b38203b8b2a98d0  vendor/github.com/gin-gonic/gin/LICENSE
 65bffcb78f7d0f57b2e18dcd728d398a86a21832adb61a25c35cc7363e107d19  vendor/github.com/ugorji/go/codec/LICENSE
+6d13d89b6c33df37f92553cc95cec278d8770ddc78c9de84620cc16dfb48cef6  vendor/github.com/youmark/pkcs8/LICENSE
 #
 # BSD 2 license.
 8407b13e462f755c06db3db3a034dc1fdc9157af19c6ea8986e7d5aecf4126b3  vendor/gopkg.in/tomb.v2/LICENSE

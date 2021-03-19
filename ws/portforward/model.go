@@ -15,14 +15,38 @@
 package portforward
 
 const (
-	MessageTypePortForwardNew  = "new"
+	// MessageTypePortForwardNew is the message type to start a port-forwarding connection
+	// The body MUST contain a PortForwardNew object.
+	MessageTypePortForwardNew = "new"
+	// MessageTypePortForwardStop is the message type to stop a port-forwarding connection
 	MessageTypePortForwardStop = "stop"
-	MessageTypePortForward     = "forward"
+	// MessageTypePortForward is the message type for streaming data
+	MessageTypePortForward = "forward"
+	// MessageTypeError is returned on internal or protocol errors. The
+	// body MUST contain an Error object.
+	MessageTypeError = "error"
 )
 
+// PortForwardProtocol stores the protocol
+type PortForwardProtocol string
+
+// Values for the PortForwardProtocol type
 const (
-	PropertyPortForwardConnectionID = "connection_id"
-	PropertyPortForwardRemoteHost   = "remote_host"
-	PropertyPortForwardRemotePort   = "remote_port"
-	PropertyPortForwardProtocol     = "protocol"
+	PortForwardProtocolTCP = "tcp"
+	PortForwardProtocolUDP = "udp"
 )
+
+// PortForwardNew represents a new port forwarding request
+type PortForwardNew struct {
+	RemoteHost *string              `msgpack:"remote_host" json:"remote_host"`
+	RemotePort *uint                `msgpack:"remote_port" json:"remote_port"`
+	Protocol   *PortForwardProtocol `msgpack:"protocol" json:"protocol"`
+}
+
+// Error struct is passed in the Body of MsgProto in case the message type is ErrorMessage
+type Error struct {
+	// The error description, as in "Permission denied while opening a file"
+	Error *string `msgpack:"err" json:"error"`
+	// Type of message that raised the error
+	MessageType *string `msgpack:"msgtype,omitempty" json:"message_type,omitempty"`
+}

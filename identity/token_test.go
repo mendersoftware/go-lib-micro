@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -26,17 +26,19 @@ func boolPtr(val bool) *bool {
 	return &val
 }
 
-func makeClaimsFull(sub, tenant, plan string, device, user bool) string {
+func makeClaimsFull(sub, tenant, plan string, device, user, trial bool) string {
 	claim := struct {
 		Subject string `json:"sub,omitempty"`
 		Tenant  string `json:"mender.tenant,omitempty"`
 		Device  *bool  `json:"mender.device,omitempty"`
 		User    *bool  `json:"mender.user,omitempty"`
 		Plan    string `json:"mender.plan,omitempty"`
+		Trial   bool   `json:"mender.trial"`
 	}{
 		Subject: sub,
 		Tenant:  tenant,
 		Plan:    plan,
+		Trial:   trial,
 	}
 
 	if device {
@@ -51,7 +53,7 @@ func makeClaimsFull(sub, tenant, plan string, device, user bool) string {
 }
 
 func makeClaimsPart(sub, tenant, plan string) string {
-	return makeClaimsFull(sub, tenant, plan, false, false)
+	return makeClaimsFull(sub, tenant, plan, false, false, false)
 }
 
 func TestExtractIdentity(t *testing.T) {
@@ -102,6 +104,11 @@ func TestExtractIdentity(t *testing.T) {
 	_, err = ExtractIdentity("foo.barrr.baz")
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to decode base64 JWT claims")
+
+	rawclaims = makeClaimsFull("foobar", "", "", false, true, true)
+	idata, err = ExtractIdentity("foo." + rawclaims + ".bar")
+	assert.NoError(t, err)
+	assert.Equal(t, Identity{Subject: "foobar", IsUser: true, Trial: true}, idata)
 }
 
 func TestExtractIdentityFromHeaders(t *testing.T) {

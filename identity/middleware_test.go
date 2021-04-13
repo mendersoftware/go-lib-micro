@@ -515,7 +515,7 @@ func TestIdentityMiddlewareDevice(t *testing.T) {
 			req := test.MakeSimpleRequest("GET", "http://localhost/", nil)
 
 			claims := makeClaimsFull(tc.identity.Subject, tc.identity.Tenant, tc.identity.Plan,
-				tc.identity.IsDevice, tc.identity.IsUser)
+				tc.identity.IsDevice, tc.identity.IsUser, false)
 			req.Header.Set("Authorization", "Bearer foo."+claims+".bar")
 
 			recorded := test.RunRequest(t, handler, req)

@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -30,6 +30,13 @@ func DocumentFromStruct(
 	sct interface{},
 	appendElements ...bson.E,
 ) (doc bson.D) {
+	if marshaller, ok := sct.(bson.Marshaler); ok {
+		var doc bson.D
+		if data, err := marshaller.MarshalBSON(); err == nil {
+			_ = bson.Unmarshal(data, &doc)
+		}
+		return doc
+	}
 	s := reflect.ValueOf(sct)
 	defer func() {
 		if r := recover(); r != nil {

@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -139,9 +139,12 @@ func TestMakePagingHeaders(t *testing.T) {
 
 		Links: []string{`</foobar?page=1&per_page=20>; rel="first"`},
 	}, {
-		Name:  "ok, default has next",
-		URL:   url.URL{Path: "/foobar"},
-		Hints: NewPagingHints().SetHasNext(true),
+		Name: "ok, default has next",
+		URL:  url.URL{Path: "/foobar"},
+		Hints: NewPagingHints().
+			SetHasNext(true).
+			SetPage(1).
+			SetPerPage(20),
 
 		Links: []string{
 			`</foobar?page=1&per_page=20>; rel="first"`,

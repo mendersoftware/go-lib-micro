@@ -134,6 +134,17 @@ func TestMakePagingHeaders(t *testing.T) {
 			`</foobar?page=12&per_page=10>; rel="last"`,
 		},
 	}, {
+		Name:  "ok, up-by-one",
+		URL:   url.URL{Path: "/foobar", RawQuery: "page=3&per_page=10"},
+		Hints: NewPagingHints().SetTotalCount(121),
+
+		Links: []string{
+			`</foobar?page=1&per_page=10>; rel="first"`,
+			`</foobar?page=2&per_page=10>; rel="prev"`,
+			`</foobar?page=4&per_page=10>; rel="next"`,
+			`</foobar?page=13&per_page=10>; rel="last"`,
+		},
+	}, {
 		Name: "ok, defaults",
 		URL:  url.URL{Path: "/foobar"},
 

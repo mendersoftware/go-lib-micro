@@ -172,16 +172,16 @@ func MakePagingHeaders(r *http.Request, hints ...*PagingHints) ([]string, error)
 
 	// TotalCount takes precedence over HasNext
 	if hint.TotalCount != nil && *hint.TotalCount > 0 {
-		idx := (*hint.Page) * (*hint.PerPage)
-		// 1st check for overflow, then check for next page
-		if idx > 0 && *hint.TotalCount > idx {
+		lastPage := (*hint.TotalCount-1) / *hint.PerPage + 1
+		if *hint.Page < lastPage {
+			// Add "next" link
 			q.Set(pageQueryParam, strconv.FormatUint(uint64(*hint.Page)+1, 10))
 			locationURL.RawQuery = q.Encode()
 			links = append(links, fmt.Sprintf(
 				"<%s>; rel=\"next\"", locationURL.String(),
 			))
 		}
-		lastPage := (*hint.TotalCount / *hint.PerPage - 1) + 1
+		// Add "last" link
 		q.Set(pageQueryParam, strconv.FormatInt(lastPage, 10))
 		locationURL.RawQuery = q.Encode()
 		links = append(links, fmt.Sprintf(

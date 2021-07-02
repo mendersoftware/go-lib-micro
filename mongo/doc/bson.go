@@ -22,11 +22,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// DocumentFromStruct creates a bson document from a struct in the order of the
-// underlying data structure. Additional fields can be appended to the struct
-// with the appendElements, these fields will be added at the end of the
-// document.
-func DocumentFromStruct(
+// MarshallBSONOrDocumentFromStruct marshals a structure to BSON if it implements
+// the bson.Marshaler interface, otherwise invokes DocumentFromStruct on it.
+func MarshallBSONOrDocumentFromStruct(
 	sct interface{},
 	appendElements ...bson.E,
 ) (doc bson.D) {
@@ -37,6 +35,17 @@ func DocumentFromStruct(
 		}
 		return doc
 	}
+	return DocumentFromStruct(sct, appendElements...)
+}
+
+// DocumentFromStruct creates a bson document from a struct in the order of the
+// underlying data structure. Additional fields can be appended to the struct
+// with the appendElements, these fields will be added at the end of the
+// document.
+func DocumentFromStruct(
+	sct interface{},
+	appendElements ...bson.E,
+) (doc bson.D) {
 	s := reflect.ValueOf(sct)
 	defer func() {
 		if r := recover(); r != nil {

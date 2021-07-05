@@ -1,4 +1,4 @@
-// Copyright 2020 Northern.tech AS
+// Copyright 2021 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -23,6 +23,67 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson"
 )
+
+type SampleBSONMarshalerStruct struct {
+	Value bson.D
+}
+
+func (r *SampleBSONMarshalerStruct) MarshalBSON() ([]byte, error) {
+	return bson.Marshal(r.Value)
+}
+
+func TestMarshallBSONOrDocumentFromStruct(t *testing.T) {
+	testCases := []struct {
+		Name string
+
+		Input          interface{}
+		AppendElements []bson.E
+		Expected       bson.D
+	}{
+		{
+			Name: "Simple success",
+
+			Input: struct {
+				Field1 string
+				Field2 int
+			}{
+				Field1: "foo",
+				Field2: 321,
+			},
+			Expected: bson.D{
+				{Key: "field1", Value: "foo"},
+				{Key: "field2", Value: 321},
+			},
+		},
+		{
+			Name: "bson.Marshaler interface",
+
+			Input: &SampleBSONMarshalerStruct{
+				Value: bson.D{
+					{Key: "field", Value: "value"},
+				},
+			},
+			Expected: bson.D{
+				{Key: "field", Value: "value"},
+			},
+		},
+		{
+			Name: "Not a struct",
+
+			Input:    "Panic attack!",
+			Expected: nil,
+		},
+	}
+
+	t.Parallel()
+	for _, tc := range testCases {
+		t.Run(tc.Name, func(t *testing.T) {
+			doc := MarshallBSONOrDocumentFromStruct(tc.Input, tc.AppendElements...)
+			assert.Equal(t, tc.Expected, doc)
+		})
+	}
+
+}
 
 func TestDocumentFromStruct(t *testing.T) {
 	testCases := []struct {

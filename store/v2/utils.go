@@ -49,7 +49,7 @@ func WithTenantID(ctx context.Context, doc interface{}) bson.D {
 	case bson.D:
 		res = append(res, v...)
 	default:
-		if bsonData := mdoc.DocumentFromStruct(v); bsonData != nil {
+		if bsonData := mdoc.MarshallBSONOrDocumentFromStruct(v); bsonData != nil {
 			res = append(res, bsonData...)
 		}
 	}

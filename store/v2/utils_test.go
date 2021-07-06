@@ -34,16 +34,16 @@ func TestWithTenantID(t *testing.T) {
 
 	// without tenant ID
 	res := WithTenantID(ctx, map[string]interface{}{"key": "value"})
-	assert.Equal(t, bson.D{{Key: "key", Value: "value"}}, res)
+	assert.Equal(t, bson.D{{Key: FieldTenantID, Value: ""}, {Key: "key", Value: "value"}}, res)
 
 	res = WithTenantID(ctx, bson.M{"key": "value"})
-	assert.Equal(t, bson.D{{Key: "key", Value: "value"}}, res)
+	assert.Equal(t, bson.D{{Key: FieldTenantID, Value: ""}, {Key: "key", Value: "value"}}, res)
 
 	res = WithTenantID(ctx, bson.D{{Key: "key", Value: "value"}})
-	assert.Equal(t, bson.D{{Key: "key", Value: "value"}}, res)
+	assert.Equal(t, bson.D{{Key: FieldTenantID, Value: ""}, {Key: "key", Value: "value"}}, res)
 
 	res = WithTenantID(ctx, sample)
-	assert.Equal(t, bson.D{{Key: "attribute", Value: "value"}}, res)
+	assert.Equal(t, bson.D{{Key: FieldTenantID, Value: ""}, {Key: "attribute", Value: "value"}}, res)
 
 	res = WithTenantID(ctx, "dummy-value")
 	assert.Equal(t, bson.D{}, res)
@@ -69,7 +69,7 @@ func TestWithTenantID(t *testing.T) {
 	assert.Equal(t, bson.D{{Key: FieldTenantID, Value: tenantID}, {Key: "attribute", Value: "value"}}, res)
 
 	res = WithTenantID(ctx, "dummy-value")
-	assert.Equal(t, bson.D{{Key: FieldTenantID, Value: tenantID}}, res)
+	assert.Equal(t, bson.D{}, res)
 }
 
 func TestArrayWithTenantID(t *testing.T) {
@@ -77,7 +77,7 @@ func TestArrayWithTenantID(t *testing.T) {
 
 	// without tenant ID
 	res := ArrayWithTenantID(ctx, bson.A{bson.M{"key": "value"}})
-	assert.Equal(t, bson.A{bson.D{{Key: "key", Value: "value"}}}, res)
+	assert.Equal(t, bson.A{bson.D{{Key: FieldTenantID, Value: ""}, {Key: "key", Value: "value"}}}, res)
 
 	// with tenant ID
 	const tenantID = "bar"

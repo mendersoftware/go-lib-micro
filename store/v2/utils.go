@@ -30,12 +30,14 @@ const FieldTenantID = "tenant_id"
 // WithTenantID adds the tenant_id field to a bson document using the value extracted
 // from the identity of the context
 func WithTenantID(ctx context.Context, doc interface{}) bson.D {
+	var tenantID string
 	res := bson.D{}
 
 	identity := identity.FromContext(ctx)
 	if identity != nil {
-		res = append(res, bson.E{Key: FieldTenantID, Value: identity.Tenant})
+		tenantID = identity.Tenant
 	}
+	res = append(res, bson.E{Key: FieldTenantID, Value: tenantID})
 
 	switch v := doc.(type) {
 	case map[string]interface{}:

@@ -131,7 +131,7 @@ func TestMiddleware(t *testing.T) {
 			// First three entries in the trace should match this:
 			`trace=".+middleware_gin_test\.go\(TestMiddleware\.func[0-9]*\):[0-9]+\\n` +
 				`.+\(\(\*Context\).Next\):[0-9]+\\n` +
-				`.+middleware_gin\.go\(Middleware\.func[0-9]*\):[0-9]+\\n.+"`,
+				`.+\(\(\*Context\).Next\):[0-9]+\\n`,
 		},
 		ExpectedBody: `{"error": "internal error"}`,
 	}}

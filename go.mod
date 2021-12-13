@@ -9,7 +9,7 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/viper v1.9.0
+	github.com/spf13/viper v1.10.0
 	github.com/stretchr/testify v1.7.0
 	go.mongodb.org/mongo-driver v1.7.4
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637

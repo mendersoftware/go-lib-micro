@@ -8,7 +8,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/satori/go.uuid v1.2.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.1 // indirect
 	github.com/spf13/viper v1.10.1

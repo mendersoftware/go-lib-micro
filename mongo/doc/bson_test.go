@@ -1,4 +1,4 @@
-// Copyright 2021 Northern.tech AS
+// Copyright 2022 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -86,6 +86,10 @@ func TestMarshallBSONOrDocumentFromStruct(t *testing.T) {
 }
 
 func TestDocumentFromStruct(t *testing.T) {
+	type InlineStruct struct {
+		FirstField  string `bson:"first_field"`
+		SecondField string `bson:"second_field"`
+	}
 	testCases := []struct {
 		Name string
 
@@ -125,6 +129,30 @@ func TestDocumentFromStruct(t *testing.T) {
 				{Key: "foo", Value: "baz"},
 				{Key: "a1", Value: 123},
 				{Key: "a2", Value: "foobarbaz"},
+			},
+		},
+		{
+			Name: "Bson tags, appends and inline struct",
+
+			Input: struct {
+				Field1       string `bson:"foo"`
+				Field2       string `bson:"bar,omitempty"`
+				InlineStruct `bson:"inline"`
+			}{
+				Field1: "baz",
+				InlineStruct: InlineStruct{
+					FirstField:  "f1",
+					SecondField: "f2",
+				},
+			},
+			AppendElements: []bson.E{
+				{Key: "a1", Value: 123},
+			},
+			Expected: bson.D{
+				{Key: "foo", Value: "baz"},
+				{Key: "first_field", Value: "f1"},
+				{Key: "second_field", Value: "f2"},
+				{Key: "a1", Value: 123},
 			},
 		},
 		{

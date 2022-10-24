@@ -8,8 +8,8 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/viper v1.12.0
-	github.com/stretchr/testify v1.7.2
+	github.com/spf13/viper v1.13.0
+	github.com/stretchr/testify v1.8.0
 	go.mongodb.org/mongo-driver v1.10.2
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )

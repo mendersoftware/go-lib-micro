@@ -76,7 +76,7 @@ github.com/pelletier/go-toml/v2/internal/tracker
 github.com/pkg/errors
 # github.com/pmezard/go-difflib v1.0.0
 github.com/pmezard/go-difflib/difflib
-# github.com/sirupsen/logrus v1.8.1
+# github.com/sirupsen/logrus v1.9.0
 ## explicit
 github.com/sirupsen/logrus
 # github.com/spf13/afero v1.8.2
@@ -162,7 +162,7 @@ golang.org/x/crypto/sha3
 golang.org/x/net/context
 # golang.org/x/sync v0.0.0-20220513210516-0976fa681c29
 golang.org/x/sync/errgroup
-# golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+# golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
 golang.org/x/sys/cpu
 golang.org/x/sys/internal/unsafeheader
 golang.org/x/sys/unix

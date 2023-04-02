@@ -46,12 +46,12 @@ func TestLoadRsaPrivateKey(t *testing.T) {
 	}
 
 	for i, tc := range testCases {
+		tcVar := tc
 		t.Run(fmt.Sprintf("tc %d", i), func(t *testing.T) {
 			t.Parallel()
-
-			key, err := LoadRSAPrivate(tc.privKeyPath)
-			if tc.err != "" {
-				assert.EqualError(t, err, tc.err)
+			key, err := LoadRSAPrivate(tcVar.privKeyPath)
+			if tcVar.err != "" {
+				assert.EqualError(t, err, tcVar.err)
 			} else {
 				assert.NoError(t, err)
 				assert.NotNil(t, key)

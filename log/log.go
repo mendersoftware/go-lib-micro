@@ -32,6 +32,8 @@ package log
 
 import (
 	"context"
+	"fmt"
+	"io"
 	"path"
 	"runtime"
 	"strings"
@@ -67,9 +69,66 @@ func init() {
 	Log.ExitFunc = func(int) {}
 }
 
+type Level logrus.Level
+
+const (
+	LevelPanic = Level(logrus.PanicLevel)
+	LevelFatal = Level(logrus.FatalLevel)
+	LevelError = Level(logrus.ErrorLevel)
+	LevelWarn  = Level(logrus.WarnLevel)
+	LevelInfo  = Level(logrus.InfoLevel)
+	LevelDebug = Level(logrus.DebugLevel)
+	LevelTrace = Level(logrus.TraceLevel)
+)
+
+type Format int
+
+const (
+	FormatConsole Format = iota
+	FormatJSON
+)
+
+type Options struct {
+	TimestampFormat string
+
+	Level Level
+
+	DisableCaller bool
+
+	Format Format
+
+	Output io.Writer
+}
+
+func Configure(opts Options) {
+	Log = logrus.New()
+
+	Log.SetOutput(opts.Output)
+	Log.SetLevel(logrus.Level(opts.Level))
+
+	if !opts.DisableCaller {
+		Log.AddHook(ContextHook{})
+	}
+
+	var formatter logrus.Formatter
+
+	switch opts.Format {
+	case FormatConsole:
+		formatter = &logrus.TextFormatter{
+			FullTimestamp:   true,
+			TimestampFormat: opts.TimestampFormat,
+		}
+	case FormatJSON:
+		formatter = &logrus.JSONFormatter{
+			TimestampFormat: opts.TimestampFormat,
+		}
+	}
+	logrus.SetFormatter(formatter)
+}
+
 // Setup allows to override the global logger setup.
 func Setup(debug bool) {
-	if debug == true {
+	if debug {
 		Log.Level = logrus.DebugLevel
 	}
 }
@@ -121,25 +180,55 @@ func (hook ContextHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-func (hook ContextHook) Fire(entry *logrus.Entry) error {
-	//'skip' = 6 is the default call stack skip, which
-	//works ootb when Error(), Warn(), etc. are called
-	//for Errorf(), Warnf(), etc. - we have to skip 1 lvl up
-	for skip := 6; skip < 8; skip++ {
-		if pc, file, line, ok := runtime.Caller(skip); ok {
-			funcName := runtime.FuncForPC(pc).Name()
+func fmtCaller(frame runtime.Frame) string {
+	return fmt.Sprintf(
+		"%s:%d>%s",
+		path.Base(frame.File),
+		frame.Line,
+		path.Base(frame.Function),
+	)
+}
 
-			//detect if we're still in logrus (formatting funcs)
-			if !strings.Contains(funcName, "github.com/sirupsen/logrus") {
-				entry.Data["file"] = path.Base(file)
-				entry.Data["func"] = path.Base(funcName)
-				entry.Data["line"] = line
+func (hook ContextHook) Fire(entry *logrus.Entry) error {
+	const (
+		minCallDepth = 6 // logrus.Logger.Log
+		maxCallDepth = 8 // logrus.Logger.<Level>f
+	)
+	var pcs [1 + maxCallDepth - minCallDepth]uintptr
+	if _, ok := entry.Data["caller"]; !ok {
+		// We don't know how deep we are in the callstack since the hook can be fired
+		// at different levels. Search between depth 6 -> 8.
+		i := runtime.Callers(minCallDepth, pcs[:])
+		frames := runtime.CallersFrames(pcs[:i])
+		var caller *runtime.Frame
+		for frame, ok := frames.Next(); ok; frame, ok = frames.Next() {
+			if !strings.HasPrefix(frame.Function, "github.com/sirupsen/logrus") {
+				caller = &frame
 				break
 			}
 		}
+		if caller != nil {
+			entry.Data["caller"] = fmtCaller(*caller)
+		}
 	}
-
 	return nil
+}
+
+// WithCallerContext returns a new logger with caller set to the parent caller
+// context. The skipParents select how many caller contexts to skip, a value of
+// 0 sets the context to the caller of this function.
+func (l *Logger) WithCallerContext(skipParents int) *Logger {
+	const calleeDepth = 2
+	var pc [1]uintptr
+	newEntry := l
+	i := runtime.Callers(calleeDepth+skipParents, pc[:])
+	frame, _ := runtime.CallersFrames(pc[:i]).
+		Next()
+	if frame.Func != nil {
+		newEntry = &Logger{Entry: l.Dup()}
+		newEntry.Data["caller"] = fmtCaller(frame)
+	}
+	return newEntry
 }
 
 // Grab an instance of Logger that may have been passed in context.Context.

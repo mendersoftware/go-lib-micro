@@ -34,9 +34,12 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -44,6 +47,15 @@ import (
 var (
 	// log is a global logger instance
 	Log = logrus.New()
+)
+
+const (
+	envLogFormat        = "LOG_FORMAT"
+	envLogLevel         = "LOG_LEVEL"
+	envLogDisableCaller = "LOG_DISABLE_CALLER"
+
+	logFormatJSON    = "json"
+	logFormatJSONAlt = "ndjson"
 )
 
 type loggerContextKeyType int
@@ -61,11 +73,24 @@ type ContextLogger interface {
 
 // init initializes the global logger to sane defaults.
 func init() {
-	Log.Formatter = &logrus.TextFormatter{
-		FullTimestamp: true,
+	var opts Options
+	switch strings.ToLower(os.Getenv(envLogFormat)) {
+	case logFormatJSON, logFormatJSONAlt:
+		opts.Format = FormatJSON
+	default:
+		opts.Format = FormatConsole
 	}
-	Log.Level = logrus.InfoLevel
-	Log.Hooks.Add(ContextHook{})
+	opts.Level = Level(logrus.InfoLevel)
+	if lvl := os.Getenv(envLogLevel); lvl != "" {
+		logLevel, err := logrus.ParseLevel(lvl)
+		if err == nil {
+			opts.Level = Level(logLevel)
+		}
+	}
+	opts.TimestampFormat = time.RFC3339
+	opts.DisableCaller, _ = strconv.ParseBool(os.Getenv(envLogDisableCaller))
+	Configure(opts)
+
 	Log.ExitFunc = func(int) {}
 }
 
@@ -103,7 +128,9 @@ type Options struct {
 func Configure(opts Options) {
 	Log = logrus.New()
 
-	Log.SetOutput(opts.Output)
+	if opts.Output != nil {
+		Log.SetOutput(opts.Output)
+	}
 	Log.SetLevel(logrus.Level(opts.Level))
 
 	if !opts.DisableCaller {
@@ -123,7 +150,7 @@ func Configure(opts Options) {
 			TimestampFormat: opts.TimestampFormat,
 		}
 	}
-	logrus.SetFormatter(formatter)
+	Log.Formatter = formatter
 }
 
 // Setup allows to override the global logger setup.
@@ -182,10 +209,10 @@ func (hook ContextHook) Levels() []logrus.Level {
 
 func fmtCaller(frame runtime.Frame) string {
 	return fmt.Sprintf(
-		"%s:%d>%s",
+		"%s@%s:%d",
+		path.Base(frame.Function),
 		path.Base(frame.File),
 		frame.Line,
-		path.Base(frame.Function),
 	)
 }
 
@@ -201,7 +228,7 @@ func (hook ContextHook) Fire(entry *logrus.Entry) error {
 		i := runtime.Callers(minCallDepth, pcs[:])
 		frames := runtime.CallersFrames(pcs[:i])
 		var caller *runtime.Frame
-		for frame, ok := frames.Next(); ok; frame, ok = frames.Next() {
+		for frame, _ := frames.Next(); frame.PC != 0; frame, _ = frames.Next() {
 			if !strings.HasPrefix(frame.Function, "github.com/sirupsen/logrus") {
 				caller = &frame
 				break

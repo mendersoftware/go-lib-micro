@@ -13,3 +13,7 @@ include:
 stages:
   - test
   - publish
+
+test:unit:
+  variables:
+    TEST_MONGO_URL: "mongodb://mongo"

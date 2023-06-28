@@ -2,7 +2,7 @@ include:
   - project: 'Northern.tech/Mender/mendertesting'
     file: '.gitlab-ci-check-golang-static.yml'
   - project: 'Northern.tech/Mender/mendertesting'
-    file: '.gitlab-ci-check-golang-unittests.yml'
+    file: '.gitlab-ci-check-golang-unittests-v2.yml'
   - project: 'Northern.tech/Mender/mendertesting'
     file: '.gitlab-ci-check-commits-signoffs.yml'
   - project: 'Northern.tech/Mender/mendertesting'
@@ -13,3 +13,7 @@ include:
 stages:
   - test
   - publish
+
+test:unit:
+  variables:
+    TEST_MONGO_URL: "mongodb://mongo"

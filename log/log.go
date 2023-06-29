@@ -52,10 +52,15 @@ var (
 const (
 	envLogFormat        = "LOG_FORMAT"
 	envLogLevel         = "LOG_LEVEL"
-	envLogDisableCaller = "LOG_DISABLE_CALLER"
+	envLogDisableCaller = "LOG_DISABLE_CALLER_CONTEXT"
 
 	logFormatJSON    = "json"
 	logFormatJSONAlt = "ndjson"
+
+	logFieldCaller    = "caller"
+	logFieldCallerFmt = "%s@%s:%d"
+
+	pkgSirupsen = "github.com/sirupsen/logrus"
 )
 
 type loggerContextKeyType int
@@ -209,7 +214,7 @@ func (hook ContextHook) Levels() []logrus.Level {
 
 func fmtCaller(frame runtime.Frame) string {
 	return fmt.Sprintf(
-		"%s@%s:%d",
+		logFieldCallerFmt,
 		path.Base(frame.Function),
 		path.Base(frame.File),
 		frame.Line,
@@ -222,20 +227,20 @@ func (hook ContextHook) Fire(entry *logrus.Entry) error {
 		maxCallDepth = 8 // logrus.Logger.<Level>f
 	)
 	var pcs [1 + maxCallDepth - minCallDepth]uintptr
-	if _, ok := entry.Data["caller"]; !ok {
+	if _, ok := entry.Data[logFieldCaller]; !ok {
 		// We don't know how deep we are in the callstack since the hook can be fired
 		// at different levels. Search between depth 6 -> 8.
 		i := runtime.Callers(minCallDepth, pcs[:])
 		frames := runtime.CallersFrames(pcs[:i])
 		var caller *runtime.Frame
 		for frame, _ := frames.Next(); frame.PC != 0; frame, _ = frames.Next() {
-			if !strings.HasPrefix(frame.Function, "github.com/sirupsen/logrus") {
+			if !strings.HasPrefix(frame.Function, pkgSirupsen) {
 				caller = &frame
 				break
 			}
 		}
 		if caller != nil {
-			entry.Data["caller"] = fmtCaller(*caller)
+			entry.Data[logFieldCaller] = fmtCaller(*caller)
 		}
 	}
 	return nil
@@ -253,7 +258,7 @@ func (l *Logger) WithCallerContext(skipParents int) *Logger {
 		Next()
 	if frame.Func != nil {
 		newEntry = &Logger{Entry: l.Dup()}
-		newEntry.Data["caller"] = fmtCaller(frame)
+		newEntry.Data[logFieldCaller] = fmtCaller(frame)
 	}
 	return newEntry
 }

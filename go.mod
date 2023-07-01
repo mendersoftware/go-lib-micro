@@ -7,7 +7,7 @@ require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/google/uuid v1.3.0
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.15.0
 	github.com/stretchr/testify v1.8.1
 	go.mongodb.org/mongo-driver v1.12.0

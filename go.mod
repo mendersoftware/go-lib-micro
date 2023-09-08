@@ -3,14 +3,14 @@ module github.com/mendersoftware/go-lib-micro
 go 1.18
 
 require (
-	github.com/ant0ine/go-json-rest v3.3.3-0.20170913041208-ebb33769ae01+incompatible
+	github.com/ant0ine/go-json-rest v3.3.2+incompatible
 	github.com/gin-gonic/gin v1.9.1
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.3.1
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/viper v1.15.0
-	github.com/stretchr/testify v1.8.3
-	go.mongodb.org/mongo-driver v1.12.0
+	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/viper v1.16.0
+	github.com/stretchr/testify v1.8.4
+	go.mongodb.org/mongo-driver v1.12.1
 	gopkg.in/tomb.v2 v2.0.0-20161208151619-d5d1b5820637
 )
 
@@ -39,8 +39,8 @@ require (
 	github.com/montanaflynn/stats v0.0.0-20171201202039-1bf9dbcd8cbe // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/spf13/afero v1.9.3 // indirect
-	github.com/spf13/cast v1.5.0 // indirect
+	github.com/spf13/afero v1.9.5 // indirect
+	github.com/spf13/cast v1.5.1 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.0 // indirect

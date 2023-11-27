@@ -85,7 +85,6 @@ func ClientFromConnectionString(
 	} else if scheme == "" {
 		redisurl.Scheme = "redis"
 	}
-	redisurl.Scheme = "redis"
 	// To allow more flexibility for the srv record service
 	// name we use "tls" query parameter to determine if we
 	// should use TLS, otherwise we test if the service

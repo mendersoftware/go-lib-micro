@@ -63,6 +63,14 @@ func ClientFromConnectionString(
 	if err != nil {
 		return nil, err
 	}
+	// in case connection string was provided in form of host:port
+	// add scheme and parse again
+	if redisurl.Host == "" {
+		redisurl, err = url.Parse("redis://" + connectionString)
+		if err != nil {
+			return nil, err
+		}
+	}
 	q := redisurl.Query()
 	scheme := redisurl.Scheme
 	cname := redisurl.Hostname()

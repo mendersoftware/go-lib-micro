@@ -133,6 +133,9 @@ func ClientFromConnectionString(
 			rdb = redis.NewClient(redisOpts)
 		}
 	}
+	if err != nil {
+		return nil, fmt.Errorf("redis: invalid connection string: %w", err)
+	}
 	_, err = rdb.
 		Ping(ctx).
 		Result()

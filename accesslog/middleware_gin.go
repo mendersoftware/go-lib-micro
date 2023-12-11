@@ -26,7 +26,9 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type AccessLogger struct{}
+type AccessLogger struct {
+	DisableLog func(c *gin.Context) bool
+}
 
 func (a AccessLogger) LogFunc(c *gin.Context, startTime time.Time) {
 	logCtx := logrus.Fields{
@@ -54,6 +56,8 @@ func (a AccessLogger) LogFunc(c *gin.Context, startTime time.Time) {
 				errors.New("internal error"),
 			)
 		}()
+	} else if a.DisableLog != nil && a.DisableLog(c) {
+		return
 	}
 	latency := time.Since(startTime)
 	// We do not need more than 3 digit fraction

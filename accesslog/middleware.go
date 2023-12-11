@@ -46,6 +46,8 @@ type AccessLogMiddleware struct {
 	Format       AccessLogFormat
 	textTemplate *template.Template
 
+	DisableLog func(statusCode int, r *rest.Request) bool
+
 	recorder *rest.RecorderMiddleware
 }
 
@@ -94,6 +96,7 @@ func (mw *AccessLogMiddleware) LogFunc(startTime time.Time, w rest.ResponseWrite
 		"path":   r.URL.Path,
 		"qs":     r.URL.RawQuery,
 	}
+	statusCode := util.StatusCode()
 
 	if panic := recover(); panic != nil {
 		trace := collectTrace()
@@ -103,6 +106,9 @@ func (mw *AccessLogMiddleware) LogFunc(startTime time.Time, w rest.ResponseWrite
 		mw.recorder.MiddlewareFunc(func(w rest.ResponseWriter, r *rest.Request) {
 			rest.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		})(w, r)
+		statusCode = http.StatusInternalServerError
+	} else if mw.DisableLog != nil && mw.DisableLog(statusCode, r) {
+		return
 	}
 	rspTime := time.Since(startTime)
 	r.Env["ELAPSED_TIME"] = &rspTime
@@ -114,7 +120,6 @@ func (mw *AccessLogMiddleware) LogFunc(startTime time.Time, w rest.ResponseWrite
 	}
 	fields["responsetime"] = rspTime.String()
 	fields["byteswritten"] = util.BytesWritten()
-	statusCode := util.StatusCode()
 	fields["status"] = statusCode
 
 	logger := requestlog.GetRequestLogger(r)

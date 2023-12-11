@@ -49,46 +49,60 @@ type AccessLogMiddleware struct {
 	recorder *rest.RecorderMiddleware
 }
 
+const MaxTraceback = 32
+
+func collectTrace() string {
+	var (
+		trace     [MaxTraceback]uintptr
+		traceback strings.Builder
+	)
+	// Skip 4
+	// = accesslog.LogFunc
+	// + accesslog.collectTrace
+	// + runtime.Callers
+	// + runtime.gopanic
+	n := runtime.Callers(4, trace[:])
+	frames := runtime.CallersFrames(trace[:n])
+	for frame, more := frames.Next(); frame.PC != 0 &&
+		n >= 0; frame, more = frames.Next() {
+		funcName := frame.Function
+		if funcName == "" {
+			fmt.Fprint(&traceback, "???\n")
+		} else {
+			fmt.Fprintf(&traceback, "%s@%s:%d",
+				frame.Function,
+				path.Base(frame.File),
+				frame.Line,
+			)
+		}
+		if more {
+			fmt.Fprintln(&traceback)
+		}
+		n--
+	}
+	return traceback.String()
+}
+
 func (mw *AccessLogMiddleware) LogFunc(startTime time.Time, w rest.ResponseWriter, r *rest.Request) {
 	util := &accessLogUtil{w, r}
 	fields := logrus.Fields{
-		"type":   r.Proto,
-		"ts":     startTime,
+		"type": r.Proto,
+		"ts": startTime.
+			Truncate(time.Millisecond).
+			Format(time.RFC3339Nano),
 		"method": r.Method,
 		"path":   r.URL.Path,
 		"qs":     r.URL.RawQuery,
 	}
 
 	if panic := recover(); panic != nil {
-		var (
-			trace     [MaxTraceback]uintptr
-			traceback strings.Builder
-		)
-		n := runtime.Callers(3, trace[:])
-		frames := runtime.CallersFrames(trace[:n])
-		for frame, more := frames.Next(); frame.PC != 0 &&
-			n >= 0; frame, more = frames.Next() {
-			funcName := frame.Function
-			if funcName == "" {
-				fmt.Fprint(&traceback, "???\n")
-			} else {
-				fmt.Fprintf(&traceback, "%s@%s:%d",
-					frame.Function,
-					path.Base(frame.File),
-					frame.Line,
-				)
-			}
-			if more {
-				fmt.Fprintln(&traceback)
-			}
-			n--
-		}
+		trace := collectTrace()
+		fields["panic"] = panic
+		fields["trace"] = trace
 		// Wrap in recorder middleware to make sure the response is recorded
 		mw.recorder.MiddlewareFunc(func(w rest.ResponseWriter, r *rest.Request) {
 			rest.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		})(w, r)
-		fields["panic"] = panic
-		fields["trace"] = traceback.String()
 	}
 	rspTime := time.Since(startTime)
 	r.Env["ELAPSED_TIME"] = &rspTime
@@ -124,13 +138,13 @@ func (mw *AccessLogMiddleware) MiddlewareFunc(h rest.HandlerFunc) rest.HandlerFu
 
 	// This middleware depends on RecorderMiddleware to work
 	mw.recorder = new(rest.RecorderMiddleware)
-	return mw.recorder.MiddlewareFunc(func(w rest.ResponseWriter, r *rest.Request) {
+	return func(w rest.ResponseWriter, r *rest.Request) {
 		startTime := time.Now()
-		r.Env["START_TIME"] = startTime
+		r.Env["START_TIME"] = &startTime
 		defer mw.LogFunc(startTime, w, r)
-		// call the handler
-		h(w, r)
-	})
+		// call the handler inside recorder context
+		mw.recorder.MiddlewareFunc(h)(w, r)
+	}
 }
 
 var apacheAdapter = strings.NewReplacer(

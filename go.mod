@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/ant0ine/go-json-rest v3.3.2+incompatible
 	github.com/gin-gonic/gin v1.9.1
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.5.0
 	github.com/pkg/errors v0.9.1
 	github.com/redis/go-redis/v9 v9.3.0
 	github.com/sirupsen/logrus v1.9.3

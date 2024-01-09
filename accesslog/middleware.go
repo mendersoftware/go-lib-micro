@@ -15,6 +15,8 @@ package accesslog
 
 import (
 	"bytes"
+	"context"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -34,6 +36,8 @@ import (
 type AccessLogFormat string
 
 const (
+	StatusClientClosedConnection = 499
+
 	DefaultLogFormat = "%t %S\033[0m \033[36;1m%Dμs\033[0m \"%r\" \033[1;30m%u \"%{User-Agent}i\"\033[0m"
 	SimpleLogFormat  = "%s %Dμs %r %u %{User-Agent}i"
 
@@ -85,7 +89,9 @@ func collectTrace() string {
 	return traceback.String()
 }
 
-func (mw *AccessLogMiddleware) LogFunc(startTime time.Time, w rest.ResponseWriter, r *rest.Request) {
+func (mw *AccessLogMiddleware) LogFunc(
+	ctx context.Context, startTime time.Time,
+	w rest.ResponseWriter, r *rest.Request) {
 	util := &accessLogUtil{w, r}
 	fields := logrus.Fields{
 		"type": r.Proto,
@@ -97,6 +103,13 @@ func (mw *AccessLogMiddleware) LogFunc(startTime time.Time, w rest.ResponseWrite
 		"qs":     r.URL.RawQuery,
 	}
 	statusCode := util.StatusCode()
+	select {
+	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.Canceled) {
+			statusCode = StatusClientClosedConnection
+		}
+	default:
+	}
 
 	if panic := recover(); panic != nil {
 		trace := collectTrace()
@@ -144,9 +157,10 @@ func (mw *AccessLogMiddleware) MiddlewareFunc(h rest.HandlerFunc) rest.HandlerFu
 	// This middleware depends on RecorderMiddleware to work
 	mw.recorder = new(rest.RecorderMiddleware)
 	return func(w rest.ResponseWriter, r *rest.Request) {
+		ctx := r.Request.Context()
 		startTime := time.Now()
 		r.Env["START_TIME"] = &startTime
-		defer mw.LogFunc(startTime, w, r)
+		defer mw.LogFunc(ctx, startTime, w, r)
 		// call the handler inside recorder context
 		mw.recorder.MiddlewareFunc(h)(w, r)
 	}

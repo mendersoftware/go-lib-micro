@@ -16,6 +16,7 @@ package accesslog
 
 import (
 	"bytes"
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -29,6 +30,7 @@ import (
 func TestMiddlewareLegacy(t *testing.T) {
 	testCases := []struct {
 		Name string
+		CTX  context.Context
 
 		HandlerFunc rest.HandlerFunc
 
@@ -42,6 +44,25 @@ func TestMiddlewareLegacy(t *testing.T) {
 		},
 		Fields: []string{
 			"status=204",
+			`path=/test`,
+			`qs="foo=bar"`,
+			"method=GET",
+			"responsetime=",
+			"ts=",
+		},
+	}, {
+		Name: "canceled context",
+
+		CTX: func() context.Context {
+			ctx, cancel := context.WithCancel(context.Background())
+			cancel()
+			return ctx
+		}(),
+		HandlerFunc: func(w rest.ResponseWriter, r *rest.Request) {
+			w.WriteHeader(http.StatusNoContent)
+		},
+		Fields: []string{
+			"status=499",
 			`path=/test`,
 			`qs="foo=bar"`,
 			"method=GET",
@@ -99,7 +120,12 @@ func TestMiddlewareLegacy(t *testing.T) {
 			api.SetApp(app)
 			handler := api.MakeHandler()
 			w := httptest.NewRecorder()
-			req, _ := http.NewRequest(
+			ctx := context.Background()
+			if tc.CTX != nil {
+				ctx = tc.CTX
+			}
+			req, _ := http.NewRequestWithContext(
+				ctx,
 				http.MethodGet,
 				"http://localhost/test?foo=bar",
 				nil,

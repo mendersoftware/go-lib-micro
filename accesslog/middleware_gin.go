@@ -15,6 +15,7 @@
 package accesslog
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -30,7 +31,11 @@ type AccessLogger struct {
 	DisableLog func(c *gin.Context) bool
 }
 
-func (a AccessLogger) LogFunc(c *gin.Context, startTime time.Time) {
+func (a AccessLogger) LogFunc(
+	ctx context.Context,
+	c *gin.Context,
+	startTime time.Time,
+) {
 	logCtx := logrus.Fields{
 		"clientip": c.ClientIP(),
 		"method":   c.Request.Method,
@@ -67,6 +72,13 @@ func (a AccessLogger) LogFunc(c *gin.Context, startTime time.Time) {
 		latency = latency.Round(time.Microsecond)
 	}
 	code := c.Writer.Status()
+	select {
+	case <-ctx.Done():
+		if errors.Is(ctx.Err(), context.Canceled) {
+			code = StatusClientClosedConnection
+		}
+	default:
+	}
 	logCtx["responsetime"] = latency.String()
 	logCtx["status"] = c.Writer.Status()
 	logCtx["byteswritten"] = c.Writer.Size()
@@ -97,8 +109,9 @@ func (a AccessLogger) LogFunc(c *gin.Context, startTime time.Time) {
 }
 
 func (a AccessLogger) Middleware(c *gin.Context) {
+	ctx := c.Request.Context()
 	startTime := time.Now()
-	defer a.LogFunc(c, startTime)
+	defer a.LogFunc(ctx, c, startTime)
 	c.Next()
 }
 

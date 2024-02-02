@@ -33,8 +33,6 @@ import (
 	"github.com/mendersoftware/go-lib-micro/requestlog"
 )
 
-type AccessLogFormat string
-
 const (
 	StatusClientClosedConnection = 499
 
@@ -102,6 +100,10 @@ func (mw *AccessLogMiddleware) LogFunc(
 		"path":   r.URL.Path,
 		"qs":     r.URL.RawQuery,
 	}
+	lc := fromContext(ctx)
+	if lc != nil {
+		lc.addFields(fields)
+	}
 	statusCode := util.StatusCode()
 	select {
 	case <-ctx.Done():
@@ -160,6 +162,8 @@ func (mw *AccessLogMiddleware) MiddlewareFunc(h rest.HandlerFunc) rest.HandlerFu
 		ctx := r.Request.Context()
 		startTime := time.Now()
 		r.Env["START_TIME"] = &startTime
+		ctx = withContext(ctx, &logContext{maxErrors: DefaultMaxErrors})
+		r.Request = r.Request.WithContext(ctx)
 		defer mw.LogFunc(ctx, startTime, w, r)
 		// call the handler inside recorder context
 		mw.recorder.MiddlewareFunc(h)(w, r)

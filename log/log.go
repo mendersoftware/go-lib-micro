@@ -212,12 +212,12 @@ func (hook ContextHook) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-func fmtCaller(frame runtime.Frame) string {
+func FmtCaller(caller runtime.Frame) string {
 	return fmt.Sprintf(
 		logFieldCallerFmt,
-		path.Base(frame.Function),
-		path.Base(frame.File),
-		frame.Line,
+		path.Base(caller.Function),
+		path.Base(caller.File),
+		caller.Line,
 	)
 }
 
@@ -240,7 +240,7 @@ func (hook ContextHook) Fire(entry *logrus.Entry) error {
 			}
 		}
 		if caller != nil {
-			entry.Data[logFieldCaller] = fmtCaller(*caller)
+			entry.Data[logFieldCaller] = FmtCaller(*caller)
 		}
 	}
 	return nil
@@ -258,7 +258,7 @@ func (l *Logger) WithCallerContext(skipParents int) *Logger {
 		Next()
 	if frame.Func != nil {
 		newEntry = &Logger{Entry: l.Dup()}
-		newEntry.Data[logFieldCaller] = fmtCaller(frame)
+		newEntry.Data[logFieldCaller] = FmtCaller(frame)
 	}
 	return newEntry
 }

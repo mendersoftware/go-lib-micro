@@ -47,6 +47,10 @@ func (a AccessLogger) LogFunc(
 		"type":      c.Request.Proto,
 		"useragent": c.Request.UserAgent(),
 	}
+	lc := fromContext(ctx)
+	if lc != nil {
+		lc.addFields(logCtx)
+	}
 	if r := recover(); r != nil {
 		trace := collectTrace()
 		logCtx["trace"] = trace
@@ -111,6 +115,8 @@ func (a AccessLogger) LogFunc(
 func (a AccessLogger) Middleware(c *gin.Context) {
 	ctx := c.Request.Context()
 	startTime := time.Now()
+	ctx = withContext(ctx, &logContext{maxErrors: DefaultMaxErrors})
+	c.Request = c.Request.WithContext(ctx)
 	defer a.LogFunc(ctx, c, startTime)
 	c.Next()
 }

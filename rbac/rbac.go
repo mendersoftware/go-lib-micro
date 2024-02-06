@@ -22,12 +22,14 @@ import (
 type scopeContextKeyType int
 
 const (
-	scopeContextKey scopeContextKeyType = 0
-	ScopeHeader                         = "X-MEN-RBAC-Inventory-Groups"
+	scopeContextKey        scopeContextKeyType = 0
+	ScopeHeader                                = "X-MEN-RBAC-Inventory-Groups"
+	ScopeReleaseTagsHeader                     = "X-MEN-RBAC-Releases-Tags"
 )
 
 type Scope struct {
 	DeviceGroups []string
+	ReleaseTags  []string
 }
 
 // FromContext extracts current scope from context.Context
@@ -46,8 +48,12 @@ func WithContext(ctx context.Context, scope *Scope) context.Context {
 
 func ExtractScopeFromHeader(r *http.Request) *Scope {
 	groupStr := r.Header.Get(ScopeHeader)
+	tagsStr := r.Header.Get(ScopeReleaseTagsHeader)
 	if len(groupStr) > 0 {
-		return &Scope{DeviceGroups: strings.Split(groupStr, ",")}
+		return &Scope{
+			DeviceGroups: strings.Split(groupStr, ","),
+			ReleaseTags:  strings.Split(tagsStr, ","),
+		}
 	}
 	return nil
 }

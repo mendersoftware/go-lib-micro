@@ -90,6 +90,10 @@ func ClientFromConnectionString(
 			addrs = append(addrs, fmt.Sprintf("%s:%d", host, srv[i].Port))
 		}
 		redisurl.Host = strings.Join(addrs, ",")
+		// cleanup the scheme with one known to Redis
+		// to avoid: invalid URL scheme: tcp-redis+srv
+		redisurl.Scheme = "redis"
+
 	} else if scheme == "" {
 		redisurl.Scheme = "redis"
 	}

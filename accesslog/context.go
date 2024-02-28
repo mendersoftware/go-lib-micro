@@ -100,5 +100,8 @@ func fromContext(ctx context.Context) *logContext {
 }
 
 func GetContext(ctx context.Context) LogContext {
-	return fromContext(ctx)
+	if lc := fromContext(ctx); lc != nil {
+		return lc
+	}
+	return nil
 }

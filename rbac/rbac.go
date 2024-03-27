@@ -49,7 +49,7 @@ func WithContext(ctx context.Context, scope *Scope) context.Context {
 func ExtractScopeFromHeader(r *http.Request) *Scope {
 	groupStr := r.Header.Get(ScopeHeader)
 	tagsStr := r.Header.Get(ScopeReleaseTagsHeader)
-	if len(groupStr) > 0 {
+	if len(groupStr) > 0 || len(tagsStr) > 0 {
 		return &Scope{
 			DeviceGroups: strings.Split(groupStr, ","),
 			ReleaseTags:  strings.Split(tagsStr, ","),

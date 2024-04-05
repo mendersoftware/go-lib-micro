@@ -50,10 +50,14 @@ func ExtractScopeFromHeader(r *http.Request) *Scope {
 	groupStr := r.Header.Get(ScopeHeader)
 	tagsStr := r.Header.Get(ScopeReleaseTagsHeader)
 	if len(groupStr) > 0 || len(tagsStr) > 0 {
-		return &Scope{
-			DeviceGroups: strings.Split(groupStr, ","),
-			ReleaseTags:  strings.Split(tagsStr, ","),
+		scope := Scope{}
+		if len(groupStr) > 0 {
+			scope.DeviceGroups = strings.Split(groupStr, ",")
 		}
+		if len(tagsStr) > 0 {
+			scope.ReleaseTags = strings.Split(tagsStr, ",")
+		}
+		return &scope
 	}
 	return nil
 }

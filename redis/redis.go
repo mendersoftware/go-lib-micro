@@ -113,6 +113,13 @@ func ClientFromConnectionString(
 	// Allow host to be a comma-separated list of hosts.
 	if idx := strings.LastIndexByte(redisurl.Host, ','); idx > 0 {
 		nodeAddrs := strings.Split(redisurl.Host[:idx], ",")
+		for i := range nodeAddrs {
+			const redisPort = ":6379"
+			idx := strings.LastIndex(nodeAddrs[i], ":")
+			if idx < 0 {
+				nodeAddrs[i] = nodeAddrs[i] + redisPort
+			}
+		}
 		q["addr"] = nodeAddrs
 		redisurl.RawQuery = q.Encode()
 		redisurl.Host = redisurl.Host[idx+1:]

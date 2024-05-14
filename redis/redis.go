@@ -125,7 +125,9 @@ func ClientFromConnectionString(
 		redisurl.Host = redisurl.Host[idx+1:]
 	}
 	var cluster bool
-	if _, ok := q["addr"]; ok {
+	if _, ok := q["cluster"]; ok {
+		cluster, _ = strconv.ParseBool(q.Get("cluster"))
+	} else if _, ok := q["addr"]; ok {
 		cluster = true
 	}
 	if cluster {

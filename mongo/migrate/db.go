@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -17,11 +17,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/mendersoftware/go-lib-micro/store"
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	mopts "go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/mendersoftware/go-lib-micro/store"
 )
 
 // this is a small internal data layer for the migration utils, may be shared by diff migrators
@@ -37,7 +38,11 @@ type MigrationEntry struct {
 // GetMigrationInfo retrieves a list of migrations applied to the db.
 // On success the function returns the MigrationEntries present in the db
 // sorted by the version in decending order.
-func GetMigrationInfo(ctx context.Context, sess *mongo.Client, db string) ([]MigrationEntry, error) {
+func GetMigrationInfo(
+	ctx context.Context,
+	sess *mongo.Client,
+	db string,
+) ([]MigrationEntry, error) {
 	c := sess.Database(db).Collection(DbMigrationsColl)
 	findOpts := mopts.Find()
 	findOpts.SetSort(bson.D{{
@@ -61,7 +66,12 @@ func GetMigrationInfo(ctx context.Context, sess *mongo.Client, db string) ([]Mig
 }
 
 // UpdateMigrationInfo inserts a migration entry in the migration info collection.
-func UpdateMigrationInfo(ctx context.Context, version Version, sess *mongo.Client, db string) error {
+func UpdateMigrationInfo(
+	ctx context.Context,
+	version Version,
+	sess *mongo.Client,
+	db string,
+) error {
 	c := sess.Database(db).Collection(DbMigrationsColl)
 
 	entry := MigrationEntry{
@@ -77,7 +87,11 @@ func UpdateMigrationInfo(ctx context.Context, version Version, sess *mongo.Clien
 	return nil
 }
 
-func GetTenantDbs(ctx context.Context, client *mongo.Client, matcher store.TenantDbMatchFunc) ([]string, error) {
+func GetTenantDbs(
+	ctx context.Context,
+	client *mongo.Client,
+	matcher store.TenantDbMatchFunc,
+) ([]string, error) {
 	result, err := client.ListDatabaseNames(ctx, bson.M{})
 	if err != nil {
 		return nil, err

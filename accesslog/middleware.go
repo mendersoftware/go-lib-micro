@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@ import (
 const (
 	StatusClientClosedConnection = 499
 
+	// nolint:lll
 	DefaultLogFormat = "%t %S\033[0m \033[36;1m%Dμs\033[0m \"%r\" \033[1;30m%u \"%{User-Agent}i\"\033[0m"
 	SimpleLogFormat  = "%s %Dμs %r %u %{User-Agent}i"
 
@@ -43,7 +44,8 @@ const (
 )
 
 // AccesLogMiddleware is a customized version of the AccessLogApacheMiddleware.
-// It uses the request-specific custom logger (created by requestlog), which appends the Mender-specific request context.
+// It uses the request-specific custom logger (created by requestlog),
+// which appends the Mender-specific request context.
 type AccessLogMiddleware struct {
 	Format       AccessLogFormat
 	textTemplate *template.Template
@@ -240,7 +242,8 @@ func (mw *AccessLogMiddleware) convertFormat() {
 	}
 }
 
-// accessLogUtil provides a collection of utility functions that devrive data from the Request object.
+// accessLogUtil provides a collection of utility functions
+// that get data from the Request object.
 // This object is used to provide data to the Apache Style template and the the JSON log record.
 type accessLogUtil struct {
 	W rest.ResponseWriter

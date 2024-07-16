@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -46,14 +46,16 @@ type SimpleMigrator struct {
 	Automigrate bool
 }
 
-// Apply will apply migrations, provided that Automigrate is on. After each successful migration a new migration
+// Apply will apply migrations, provided that Automigrate is on.
+// After each successful migration a new migration
 // record will be added to DB with the version of migration that was just
 // applied. If a migration fails, Apply() returns an error and does not add a
 // migration record (so last migration that is recorded is N-1).
 //
 // Apply() will log some messages when running. Logger will be extracted from
 // context using go-lib-micro/log.LoggerContextKey as key.
-// If Automigrate is off, the migrator will just check if the DB is up-to-date, and return with ErrNeedsMigration otherwise.
+// If Automigrate is off, the migrator will just check if the DB is up-to-date,
+// and return with ErrNeedsMigration otherwise.
 // Check for it with IsErrNeedsMigration.
 func (m *SimpleMigrator) Apply(ctx context.Context, target Version, migrations []Migration) error {
 	l := log.FromContext(ctx).F(log.Ctx{"db": m.Db})
@@ -83,7 +85,9 @@ func (m *SimpleMigrator) Apply(ctx context.Context, target Version, migrations [
 	// if the last applied migration is lower than the target one
 	if !m.Automigrate {
 		if VersionIsLess(last, target) {
-			return fmt.Errorf(ErrNeedsMigration+": %s has version %s, needs version %s", m.Db, last.String(), target.String())
+			return fmt.Errorf(
+				"%s: %s has version %s, needs version %s",
+				ErrNeedsMigration, m.Db, last.String(), target.String())
 		} else {
 			return nil
 		}

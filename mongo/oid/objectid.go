@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -102,9 +102,9 @@ func FromString(id string) ObjectID {
 func marshalBSONUUID(u uuid.UUID) (bsontype.Type, []byte, error) {
 	buf := make([]byte, Size+4+1)
 	binary.LittleEndian.PutUint32(buf, Size)
-	buf[4] = bsontype.BinaryUUID
+	buf[4] = bson.TypeBinaryUUID
 	copy(buf[5:], u[:])
-	return bsontype.Binary, buf, nil
+	return bson.TypeBinary, buf, nil
 
 }
 
@@ -118,7 +118,7 @@ func (oid ObjectID) MarshalBSONValue() (bsontype.Type, []byte, error) {
 	case string:
 		return bson.MarshalValue(objectID)
 	}
-	return bsontype.Null, nil, errors.New(
+	return bson.TypeNull, nil, errors.New(
 		"unable to marshal ObjectID: not initialized",
 	)
 }
@@ -127,19 +127,19 @@ func (oid ObjectID) MarshalBSONValue() (bsontype.Type, []byte, error) {
 func (oid *ObjectID) UnmarshalBSONValue(t bsontype.Type, b []byte) error {
 	var err error
 	switch t {
-	case bsontype.Binary: // Assume UUID type
+	case bson.TypeBinary: // Assume UUID type
 		l := binary.LittleEndian.Uint32(b)
 		if l != Size {
 			return errors.Errorf("illegal uuid length: %d", l)
 		}
-		if b[4] != bsontype.BinaryUUID {
+		if b[4] != bson.TypeBinaryUUID {
 			return errors.Errorf(
 				"illegal bson sub-type: %0x02X, expected: 0x%02X",
-				b[4], bsontype.BinaryUUID,
+				b[4], bson.TypeBinaryUUID,
 			)
 		}
 		oid.id, err = uuid.FromBytes(b[5:])
-	case bsontype.ObjectID:
+	case bson.TypeObjectID:
 		if len(b) != 12 {
 			return errors.Errorf(
 				"illegal objectID length: %d",
@@ -150,7 +150,7 @@ func (oid *ObjectID) UnmarshalBSONValue(t bsontype.Type, b []byte) error {
 		copy(bsonID[:], b)
 		oid.id = bsonID
 		return nil
-	case bsontype.String:
+	case bson.TypeString:
 		l := binary.LittleEndian.Uint32(b)
 		strLen := len(b) - 4
 		if int(l) != strLen {

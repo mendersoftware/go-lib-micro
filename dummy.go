@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -12,7 +12,8 @@
 //    See the License for the specific language governing permissions and
 //    limitations under the License.
 
-// This is a dummy buildable source file to satisfy 'go build ./...`, which is the only way to build a lib.
+// This is a dummy buildable source file to satisfy 'go build ./...`,
+// which is the only way to build a lib.
 // Otherwise, in the presence of license_test.go - 'no buildable go files found'.
 // Note the package name - not 'main', otherwise func main() is required.
 package golibmicro

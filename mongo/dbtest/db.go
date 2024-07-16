@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //    Licensed under the Apache License, Version 2.0 (the "License");
 //    you may not use this file except in compliance with the License.
@@ -127,7 +127,9 @@ func (dbs *DBServer) start() {
 }
 
 func (dbs *DBServer) monitor() error {
-	dbs.server.Process.Wait()
+	if _, err := dbs.server.Process.Wait(); err != nil {
+		fmt.Fprintf(os.Stderr, "---- error waiting for the process to exit: %s\n", err)
+	}
 	if dbs.tomb.Alive() {
 		// Present some debugging information.
 		fmt.Fprintf(os.Stderr, "---- mongod process died unexpectedly:\n")
@@ -136,7 +138,9 @@ func (dbs *DBServer) monitor() error {
 		cmd := exec.Command("/bin/sh", "-c", "ps auxw | grep mongod")
 		cmd.Stdout = os.Stderr
 		cmd.Stderr = os.Stderr
-		cmd.Run()
+		if err := cmd.Run(); err != nil {
+			fmt.Fprintf(os.Stderr, "---- error executing command: %s\n", err)
+		}
 		fmt.Fprintf(os.Stderr, "----------------------------------------\n")
 
 		panic("mongod process died unexpectedly")
@@ -155,7 +159,9 @@ func (dbs *DBServer) monitor() error {
 func (dbs *DBServer) Stop() {
 	if dbs.client != nil {
 		if dbs.client != nil {
-			dbs.client.Disconnect(dbs.Ctx)
+			if err := dbs.client.Disconnect(dbs.Ctx); err != nil {
+				fmt.Fprintf(os.Stderr, "---- error disconnecting from database: %s\n", err)
+			}
 			dbs.client = nil
 		}
 	}
@@ -163,9 +169,13 @@ func (dbs *DBServer) Stop() {
 		dbs.tomb.Kill(nil)
 		// Windows doesn't support Interrupt
 		if runtime.GOOS == "windows" {
-			dbs.server.Process.Signal(os.Kill)
+			if err := dbs.server.Process.Signal(os.Kill); err != nil {
+				fmt.Fprintf(os.Stderr, "---- error sending kill signal to mongod: %s\n", err)
+			}
 		} else {
-			dbs.server.Process.Signal(os.Interrupt)
+			if err := dbs.server.Process.Signal(os.Interrupt); err != nil {
+				fmt.Fprintf(os.Stderr, "---- error sending interrupt signal to mongod: %s\n", err)
+			}
 		}
 		select {
 		case <-dbs.tomb.Dead():
@@ -191,7 +201,7 @@ func (dbs *DBServer) Client() *mongo.Client {
 			dbs.timeout = 8
 		}
 		clientOptions := options.Client().ApplyURI("mongodb://" + dbs.host + "/test")
-		dbs.Ctx = context.Background() // context.WithTimeout(context.Background(), dbs.timeout*time.Second)
+		dbs.Ctx = context.Background()
 		dbs.client, err = mongo.Connect(dbs.Ctx, clientOptions)
 		if err != nil {
 			panic(err)

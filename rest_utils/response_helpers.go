@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -53,44 +53,93 @@ func RestErrWithLogInternal(w rest.ResponseWriter, r *rest.Request, l *log.Logge
 
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as debug
-func RestErrWithDebugMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithDebugMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.DebugLevel)
 }
 
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as info
-func RestErrWithInfoMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithInfoMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.InfoLevel)
 }
 
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as warning
-func RestErrWithWarningMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithWarningMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.WarnLevel)
 }
 
 // same as RestErrWithErrorMsg - for backward compatibility purpose
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as error
-func RestErrWithLogMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithLogMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.ErrorLevel)
 }
 
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as error
-func RestErrWithErrorMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithErrorMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.ErrorLevel)
 }
 
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as fatal
-func RestErrWithFatalMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithFatalMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.FatalLevel)
 }
 
 // return an error code with an overriden message (to avoid exposing the details)
 // log full error as panic
-func RestErrWithPanicMsg(w rest.ResponseWriter, r *rest.Request, l *log.Logger, e error, code int, msg string) {
+func RestErrWithPanicMsg(
+	w rest.ResponseWriter,
+	r *rest.Request,
+	l *log.Logger,
+	e error,
+	code int,
+	msg string,
+) {
 	restErrWithLogMsg(w, r, l, e, code, msg, logrus.PanicLevel)
 }
 

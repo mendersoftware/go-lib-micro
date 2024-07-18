@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -19,9 +19,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/mendersoftware/go-lib-micro/mongo/dbtest"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/mendersoftware/go-lib-micro/mongo/dbtest"
 )
 
 // TestDBRunner exports selected calls of dbtest.DBServer API, just the ones

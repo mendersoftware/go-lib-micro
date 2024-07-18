@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ func makeKeyName(hdr string) headerKeyType {
 // `hdrs` are skipped. Empty header names are skipped as well. Headers are
 // stored using httpheader package specific key namespace.
 func WithContext(ctx context.Context, hdrs http.Header, which ...string) context.Context {
-	if hdrs == nil || len(hdrs) == 0 {
+	if len(hdrs) == 0 {
 		return ctx
 	}
 	if len(which) == 0 {

@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -51,7 +51,9 @@ func (m *DummyMigrator) Apply(ctx context.Context, target Version, migrations []
 
 	if !m.Automigrate {
 		if VersionIsLess(last, target) {
-			return fmt.Errorf(ErrNeedsMigration+": %s has version %s, needs version %s", m.Db, last.String(), target.String())
+			return fmt.Errorf(
+				"%s: %s has version %s, needs version %s",
+				ErrNeedsMigration, m.Db, last.String(), target.String())
 		} else {
 			return nil
 		}

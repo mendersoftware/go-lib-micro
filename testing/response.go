@@ -1,4 +1,4 @@
-// Copyright 2023 Northern.tech AS
+// Copyright 2024 Northern.tech AS
 //
 //	Licensed under the Apache License, Version 2.0 (the "License");
 //	you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ func (b *BaseResponse) CheckStatus(t *testing.T, recorded *test.Recorded) {
 }
 
 func (b *BaseResponse) CheckContentType(t *testing.T, recorded *test.Recorded) {
-	mediaType, params, _ := mime.ParseMediaType(recorded.Recorder.HeaderMap.Get("Content-Type"))
+	mediaType, params, _ := mime.ParseMediaType(recorded.Recorder.Header().Get("Content-Type"))
 	charset := params["charset"]
 
 	if mediaType != b.ContentType {
@@ -73,7 +73,7 @@ func (b *BaseResponse) CheckContentType(t *testing.T, recorded *test.Recorded) {
 
 func (b *BaseResponse) CheckHeaders(t *testing.T, recorded *test.Recorded) {
 	for name, value := range b.Headers {
-		assert.Equal(t, value, recorded.Recorder.HeaderMap.Get(name))
+		assert.Equal(t, value, recorded.Recorder.Header().Get(name))
 	}
 }
 

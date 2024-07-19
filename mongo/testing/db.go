@@ -19,6 +19,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -36,11 +37,15 @@ type TestDBRunner interface {
 // WithDB will set up a test DB instance and pass it to `f` callback as
 // `dbtest`. Once `f()` is finished, the DB will be cleaned up. Value returned
 // from `f()` is obtained as return status of a call to WithDB().
-func WithDB(f func(dbtest TestDBRunner) int) int {
+// reg is optional custom registry which can be set up for the test client.
+func WithDB(f func(dbtest TestDBRunner) int, reg *bsoncodec.Registry) int {
 	var runner TestDBRunner
 	if url, ok := os.LookupEnv("TEST_MONGO_URL"); ok {
 		clientOpts := options.Client().
 			ApplyURI(url)
+		if reg != nil {
+			clientOpts.SetRegistry(reg)
+		}
 		client, err := mongo.Connect(context.Background(), clientOpts)
 		if err != nil {
 			panic(err)
@@ -51,6 +56,9 @@ func WithDB(f func(dbtest TestDBRunner) int) int {
 		dbdir, _ := ioutil.TempDir("", "dbsetup-test")
 		db := &dbtest.DBServer{}
 		db.SetPath(dbdir)
+		if reg != nil {
+			db.SetRegistry(reg)
+		}
 		runner = db
 
 		defer os.RemoveAll(dbdir)

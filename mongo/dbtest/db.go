@@ -54,6 +54,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsoncodec"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -70,14 +71,15 @@ import (
 // Before the DBServer is used the SetPath method must be called to define
 // the location for the database files to be stored.
 type DBServer struct {
-	Ctx     context.Context
-	timeout time.Duration
-	client  *mongo.Client
-	output  bytes.Buffer
-	server  *exec.Cmd
-	dbpath  string
-	host    string
-	tomb    tomb.Tomb
+	Ctx      context.Context
+	timeout  time.Duration
+	client   *mongo.Client
+	output   bytes.Buffer
+	server   *exec.Cmd
+	dbpath   string
+	host     string
+	tomb     tomb.Tomb
+	registry *bsoncodec.Registry
 }
 
 // SetPath defines the path to the directory where the database files will be
@@ -89,6 +91,10 @@ func (dbs *DBServer) SetPath(dbpath string) {
 
 func (dbs *DBServer) SetTimeout(timeout int) {
 	dbs.timeout = time.Duration(timeout)
+}
+
+func (dbs *DBServer) SetRegistry(reg *bsoncodec.Registry) {
+	dbs.registry = reg
 }
 
 func (dbs *DBServer) start() {
@@ -201,6 +207,9 @@ func (dbs *DBServer) Client() *mongo.Client {
 			dbs.timeout = 8
 		}
 		clientOptions := options.Client().ApplyURI("mongodb://" + dbs.host + "/test")
+		if dbs.registry != nil {
+			clientOptions.SetRegistry(dbs.registry)
+		}
 		dbs.Ctx = context.Background()
 		dbs.client, err = mongo.Connect(dbs.Ctx, clientOptions)
 		if err != nil {

@@ -23,6 +23,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -30,6 +31,7 @@ import (
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/sirupsen/logrus"
 
+	"github.com/mendersoftware/go-lib-micro/netutils"
 	"github.com/mendersoftware/go-lib-micro/requestlog"
 )
 
@@ -41,6 +43,8 @@ const (
 	SimpleLogFormat  = "%s %Dμs %r %u %{User-Agent}i"
 
 	TypeHTTP = "http"
+
+	envProxyDepth = "ACCESSLOG_PROXY_DEPTH"
 )
 
 // AccesLogMiddleware is a customized version of the AccessLogApacheMiddleware.
@@ -50,9 +54,29 @@ type AccessLogMiddleware struct {
 	Format       AccessLogFormat
 	textTemplate *template.Template
 
-	DisableLog func(statusCode int, r *rest.Request) bool
+	ClientIPHook func(req *http.Request) net.IP
+	DisableLog   func(statusCode int, r *rest.Request) bool
 
 	recorder *rest.RecorderMiddleware
+}
+
+func getClientIPFromEnv() func(r *http.Request) net.IP {
+	if proxyDepthEnv, ok := os.LookupEnv(envProxyDepth); ok {
+		proxyDepth, err := strconv.ParseUint(proxyDepthEnv, 10, 8)
+		if err == nil {
+			return func(r *http.Request) net.IP {
+				return netutils.GetIPFromXFFDepth(r, int(proxyDepth))
+			}
+		}
+	}
+	return nil
+}
+
+func NewDefaultLegacyMiddleware() *AccessLogMiddleware {
+	return &AccessLogMiddleware{
+		Format:       SimpleLogFormat,
+		ClientIPHook: getClientIPFromEnv(),
+	}
 }
 
 const MaxTraceback = 32
@@ -101,6 +125,9 @@ func (mw *AccessLogMiddleware) LogFunc(
 		"method": r.Method,
 		"path":   r.URL.Path,
 		"qs":     r.URL.RawQuery,
+	}
+	if mw.ClientIPHook != nil {
+		fields["clientip"] = mw.ClientIPHook(r.Request)
 	}
 	lc := fromContext(ctx)
 	if lc != nil {

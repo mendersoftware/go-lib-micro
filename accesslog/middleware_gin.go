@@ -17,6 +17,7 @@ package accesslog
 import (
 	"context"
 	"fmt"
+	"net"
 	"net/http"
 	"time"
 
@@ -29,7 +30,8 @@ import (
 )
 
 type AccessLogger struct {
-	DisableLog func(c *gin.Context) bool
+	DisableLog   func(c *gin.Context) bool
+	ClientIPHook func(r *http.Request) net.IP
 }
 
 func (a AccessLogger) LogFunc(
@@ -38,15 +40,17 @@ func (a AccessLogger) LogFunc(
 	startTime time.Time,
 ) {
 	logCtx := logrus.Fields{
-		"clientip": c.ClientIP(),
-		"method":   c.Request.Method,
-		"path":     c.Request.URL.Path,
-		"qs":       c.Request.URL.RawQuery,
+		"method": c.Request.Method,
+		"path":   c.Request.URL.Path,
+		"qs":     c.Request.URL.RawQuery,
 		"ts": startTime.
 			Truncate(time.Millisecond).
 			Format(time.RFC3339Nano),
 		"type":      c.Request.Proto,
 		"useragent": c.Request.UserAgent(),
+	}
+	if a.ClientIPHook != nil {
+		logCtx["clientip"] = a.ClientIPHook(c.Request)
 	}
 	lc := fromContext(ctx)
 	if lc != nil {
@@ -130,5 +134,5 @@ func (a AccessLogger) Middleware(c *gin.Context) {
 // to pop the topmost error from the gin.Context (c.Error) and puts it in
 // the "error" context to the final log entry.
 func Middleware() gin.HandlerFunc {
-	return AccessLogger{}.Middleware
+	return AccessLogger{ClientIPHook: getClientIPFromEnv()}.Middleware
 }

@@ -17,12 +17,14 @@ package accesslog
 import (
 	"bytes"
 	"context"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
 	"github.com/ant0ine/go-json-rest/rest"
 	"github.com/mendersoftware/go-lib-micro/log"
+	"github.com/mendersoftware/go-lib-micro/netutils"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
@@ -44,6 +46,7 @@ func TestMiddlewareLegacy(t *testing.T) {
 		},
 		Fields: []string{
 			"status=204",
+			"clientip=127.0.0.1",
 			`path=/test`,
 			`qs="foo=bar"`,
 			"method=GET",
@@ -113,10 +116,11 @@ func TestMiddlewareLegacy(t *testing.T) {
 						ctx = log.WithContext(ctx, logger)
 						r.Request = r.Request.WithContext(ctx)
 						h(w, r)
-						t.Log(r.Env)
 					}
 				}))
-			api.Use(&AccessLogMiddleware{})
+			api.Use(&AccessLogMiddleware{ClientIPHook: func(req *http.Request) net.IP {
+				return netutils.GetIPFromXFFDepth(req, 1)
+			}})
 			api.SetApp(app)
 			handler := api.MakeHandler()
 			w := httptest.NewRecorder()
@@ -131,6 +135,7 @@ func TestMiddlewareLegacy(t *testing.T) {
 				nil,
 			)
 			req.Header.Set("User-Agent", "tester")
+			req.Header.Add("X-Forwarded-For", "127.0.0.1")
 
 			handler.ServeHTTP(w, req)
 

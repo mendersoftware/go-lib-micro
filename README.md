@@ -1,3 +1,6 @@
+# MOVED
+
+This repository has been moved to the mender-server monorepo: https://github.com/mendersoftware/mender-server
 # go-lib-micro
 [![Build Status](https://gitlab.com/Northern.tech/Mender/go-lib-micro/badges/master/pipeline.svg)](https://gitlab.com/Northern.tech/Mender/go-lib-micro/pipelines)
 [![Coverage Status](https://coveralls.io/repos/github/mendersoftware/go-lib-micro/badge.svg?branch=master)](https://coveralls.io/github/mendersoftware/go-lib-micro?branch=master)

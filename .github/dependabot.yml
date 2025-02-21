@@ -1,0 +1,15 @@
+version: 2
+updates:
+
+  - package-ecosystem: gomod
+    commit-message:
+      prefix: chore
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      golang-dependencies:
+        patterns:
+          - "*"
+    reviewers:
+      - "mendersoftware/backend-dependabot-reviewers"

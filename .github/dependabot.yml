@@ -1,6 +1,5 @@
 version: 2
 updates:
-
   - package-ecosystem: gomod
     commit-message:
       prefix: chore
@@ -11,5 +10,3 @@ updates:
       golang-dependencies:
         patterns:
           - "*"
-    reviewers:
-      - "mendersoftware/backend-dependabot-reviewers"

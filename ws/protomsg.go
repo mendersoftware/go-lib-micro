@@ -33,6 +33,8 @@ const (
 	// ProtoTypeMenderClient is used for communication with the Mender client.
 	ProtoTypeMenderClient
 
+	ProtoTypePortForwardV2 = ProtoTypePortForward + 0x100
+
 	// ProtoTypeControl is a reserved proto type for session control messages.
 	ProtoTypeControl ProtoType = 0xFFFF
 )

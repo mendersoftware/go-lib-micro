@@ -3,9 +3,9 @@ include:
     file:
       - '.gitlab-ci-check-golang-lint.yml'
       - '.gitlab-ci-check-golang-unittests-v2.yml'
-      - '.gitlab-ci-check-commits-signoffs.yml'
       - '.gitlab-ci-check-license.yml'
       - '.gitlab-ci-github-status-updates.yml'
+  - component: gitlab.com/Northern.tech/Mender/mendertesting/commit-lint@master
 
 stages:
   - test

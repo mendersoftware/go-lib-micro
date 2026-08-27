@@ -1,0 +1,55 @@
+// renovate.json5 - Mender dependency update configuration for go-lib-micro
+// See Documentation/dependency-updates.md in mender-qa for the process.
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+
+  "extends": [
+    "config:recommended",
+    ":gitSignOff"
+  ],
+
+  // CODEOWNERS assigns backend for everything here.
+  "reviewersFromCodeOwners": true,
+
+  // chore(deps): <desc>, matching the old Dependabot prefix. CI files get ci: below.
+  "semanticCommits": "enabled",
+  "semanticCommitType": "chore",
+  "semanticCommitScope": "deps",
+
+  // Only rebase open PRs when they actually conflict. Rebasing every time the
+  // base branch moves restarts a pipeline for every open PR on each merge.
+  "rebaseWhen": "conflicted",
+
+  // One base branch here, so a smaller concurrent limit than the multi-branch repos.
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+
+  // Only master. Dependabot targeted the default branch too.
+  "baseBranchPatterns": ["master"],
+
+  // Security PRs bypass the limits.
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "schedule": ["at any time"],
+    "labels": ["security"]
+  },
+
+  "packageRules": [
+    // config:recommended pulls in :semanticPrefixFixDepsChoreOthers, which is
+    // already chore here, so no override needed above the manager rules.
+
+    // GitLab CI image bumps -> ci: (keeps them out of the deps changelog section).
+    {
+      "matchManagers": ["gitlabci", "gitlabci-include"],
+      "semanticCommitType": "ci",
+      "semanticCommitScope": ""
+    },
+
+    // Go: one PR for all modules, matching Dependabot's golang-dependencies group.
+    {
+      "matchManagers": ["gomod"],
+      "groupName": "golang-dependencies",
+      "groupSlug": "golang-dependencies"
+    }
+  ]
+}

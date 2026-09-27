@@ -5,7 +5,7 @@ go 1.18
 require (
 	github.com/google/uuid v1.4.0
 	github.com/stretchr/testify v1.8.4
-	go.mongodb.org/mongo-driver v1.12.1
+	go.mongodb.org/mongo-driver v1.17.7
 )
 
 require (
